@@ -1,6 +1,9 @@
 const multer = require("multer");
 const path = require("path");
 
+const dir = path.join(__dirname, "../dataset");
+console.info(dir);
+
 const Storage = multer.diskStorage({
   destination: function (req, file, cb) {
     const dir = path.join(__dirname, "../dataset");
