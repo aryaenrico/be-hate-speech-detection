@@ -5,12 +5,14 @@ const path = require("path");
 const { fail } = require("assert");
 const { Dataset } = require("../../../../dataser");
 const preprocessing = require("../../../../utils/utils");
+const sastrawi = require("sastrawijs");
 
 module.exports = {
   async Upload(req, res) {
     let dataSource = [];
     let dataSourceLower = [];
     let dataSourceRemoveMention = [];
+    let dataStemmed = [];
 
     const dir = path.join(
       __dirname,
@@ -24,33 +26,21 @@ module.exports = {
           dataSource.push(temp);
         }
 
-        for (i = 0; i < dataSource.length; i++) {
-          dataSourceLower.push(
-            new Dataset(
-              preprocessing.parseDate(dataSource[i].tanggal),
-              preprocessing.caseFolding(dataSource[i].tweet),
-              preprocessing.caseFolding(dataSource[i].klasifikasi)
-            )
-          );
-        }
+        dataSourceLower = preprocessing.mappingArray(
+          dataSource,
+          preprocessing.operationLower
+        );
+        dataSourceRemoveMention = preprocessing.mappingArray(
+          dataSourceLower,
+          preprocessing.operationMention
+        );
 
-        for (i = 0; i < dataSourceLower.length; i++) {
-          let temp =`${dataSourceLower[i].tweet} `
-          dataSourceRemoveMention.push(
-            new Dataset(
-              preprocessing.parseDate(dataSourceLower[i].tanggal),
-              preprocessing.removeLink(preprocessing.removeMention(temp)),
-              preprocessing.caseFolding(dataSourceLower[i].klasifikasi)
-            
-          ));
-        }
         res.status(200).json({
           status: "sukses",
           message: "file berhasil id upload",
           data: dataSource,
           dataLower: dataSourceLower,
-          dataMention:dataSourceRemoveMention
-         
+          dataLink: dataSourceRemoveMention,
         });
         return;
       })
