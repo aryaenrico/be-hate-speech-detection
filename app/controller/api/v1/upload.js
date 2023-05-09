@@ -5,7 +5,7 @@ const path = require("path");
 const { fail } = require("assert");
 const { Dataset } = require("../../../../dataser");
 const preprocessing = require("../../../../utils/utils");
-const sastrawi = require("sastrawijs");
+
 
 module.exports = {
   async Upload(req, res) {
@@ -21,7 +21,7 @@ module.exports = {
 
     readExcel(dir)
       .then((data) => {
-        for (i = 1; i < 2; i++) {
+        for (i = 1; i < data.length; i++) {
           let temp = new Dataset(data[i][0], data[i][1], data[i][2]);
           dataSource.push(temp);
         }
@@ -38,9 +38,9 @@ module.exports = {
         res.status(200).json({
           status: "sukses",
           message: "file berhasil id upload",
-          data: dataSource,
-          dataLower: dataSourceLower,
-          dataLink: dataSourceRemoveMention,
+          data: dataSource[100],
+          dataLower: dataSourceLower[100],
+          dataLink: dataSourceRemoveMention[100],
         });
         return;
       })

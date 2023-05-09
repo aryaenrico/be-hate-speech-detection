@@ -1,5 +1,6 @@
 const { Dataset } = require("../dataser");
 
+
 function caseFolding(text) {
       return text.toLowerCase();
       
