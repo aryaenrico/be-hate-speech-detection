@@ -34,6 +34,11 @@ function mappingArray(data,operation){
       return result;
 }
 
+function splitTweet({tweet}){
+      let splitTweet = tweet.split(" ");
+      return splitTweet;
+}
+
 function operationLower({tanggal,tweet,klasifikasi}){
       let tempTweet =removeLineBreak(tweet);
       return new Dataset(tanggal,caseFolding(tempTweet),klasifikasi);
@@ -47,4 +52,4 @@ function operationMention({tanggal,tweet,klasifikasi}){
 
 }
 
-module.exports ={caseFolding,parseDate,removeMention,removeLineBreak,removeLink,parseDate2,mappingArray,operationLower,operationMention}
+module.exports ={caseFolding,parseDate,removeMention,removeLineBreak,removeLink,parseDate2,mappingArray,operationLower,operationMention,splitTweet}
