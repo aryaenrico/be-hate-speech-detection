@@ -1,0 +1,166 @@
+{
+  "openapi": "3.0.2",
+  "info": {
+    "title": "API Hate Speech Detection",
+    "description": "ini hanya sebuah api yang di gunakan untuk mendeteksi kalimat kedalam hate speech atau tidak dan digunakan sebagai tugas skripsi",
+    "version": "1.0.0",
+    "contact": {
+      "email": "aryaenrico789@gmail.com",
+      "name": "aryaenrico"
+    }
+  },
+  "servers": [
+    {
+      "url": " http://localhost:8000/api/v1",
+      "description": "Server Environtment "
+    }
+  ],
+  "paths": {
+    "/file": {
+      "post": {
+        "summary": "unggah file excel",
+        "description": "unggah file excel kedalam Server kemudian extract valuenya dan akan dimasukan kedalam database",
+        "requestBody": {
+          "required": true,
+          "description": "request body pada api ini yaitu file excel yang memiliki extensi .xlsx",
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "response ketika berhasil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "tanggal": {
+                            "type": "string"
+                          },
+                          "tweet": {
+                            "type": "string"
+                          },
+                          "klasifikasi": { "type": "string" }
+                        }
+                      }
+                    },
+                    "dataLower": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "tanggal": {
+                            "type": "string"
+                          },
+                          "tweet": {
+                            "type": "string"
+                          },
+                          "klasifikasi": { "type": "string" }
+                        }
+                      }
+                    },
+                    "dataLink": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "tanggal": {
+                            "type": "string"
+                          },
+                          "tweet": {
+                            "type": "string"
+                          },
+                          "klasifikasi": { "type": "string" }
+                        }
+                      }
+                    }
+                  }
+                },
+                "examples": {
+                  "sukses": {
+                    "value": {
+                      "status": "sukses",
+                      "message": "file berhasil id upload",
+                      "data": [
+                        {
+                          "tanggal": "2023-03-23T00:00:00.000Z",
+                          "tweet": "gua juga ga membenarkan terhadap penolakan yang terjadi sampe WC U20 gagal terjadi di Indo. tapi jangan lu lupain kejadian yang bener2 ironis kemarin di Malang. Panpel, PSSI, Liga serta seluruh yang terlibat dalam sepakbola Indonesia emang perlu instropeksi dan perubahan.",
+                          "klasifikasi": "hs"
+                        }
+                      ],
+                      "dataLower": [
+                        {
+                          "tanggal": "2023-03-23T00:00:00.000Z",
+                          "tweet": "gua juga ga membenarkan terhadap penolakan yang terjadi sampe wc u20 gagal terjadi di indo. tapi jangan lu lupain kejadian yang bener2 ironis kemarin di malang. panpel, pssi, liga serta seluruh yang terlibat dalam sepakbola indonesia emang perlu instropeksi dan perubahan.",
+                          "klasifikasi": "hs"
+                        }
+                      ],
+                      "dataLink": [
+                        {
+                          "tanggal": "2023-03-23T00:00:00.000Z",
+                          "tweet": "gua juga ga membenarkan terhadap penolakan yang terjadi sampe wc u20 gagal terjadi di indo. tapi jangan lu lupain kejadian yang bener2 ironis kemarin di malang. panpel, pssi, liga serta seluruh yang terlibat dalam sepakbola indonesia emang perlu instropeksi dan perubahan. ",
+                          "klasifikasi": "hs"
+                        }
+                      ]
+                    }
+                  },
+                  "gagal":{
+                    "value":{
+                      "status":"fail",
+                      "message":"format file tidak di dukung"
+                    }
+                  }
+                }
+              }
+            }
+          },
+
+          "400": {
+            "description": "ketika mengupload bukan file excel",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "externalDocs": {
+    "description": "instagram",
+    "url": "https://www.instagram.com/aryaenrico/"
+  }
+}

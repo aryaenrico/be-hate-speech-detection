@@ -21,7 +21,7 @@ module.exports = {
 
     readExcel(dir)
       .then((data) => {
-        for (i = 1; i < data.length; i++) {
+        for (i = 1; i < 2; i++) {
           let temp = new Dataset(data[i][0], data[i][1], data[i][2]);
           dataSource.push(temp);
         }
