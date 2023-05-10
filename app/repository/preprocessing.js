@@ -1,6 +1,6 @@
 
 const {Slangword} = require("../../models");
-
+const {Stopword} = require("../../models");
 module.exports={
         slangwordrepo(text){
           return  Slangword.findOne({
@@ -9,5 +9,13 @@ module.exports={
                   },
                   attributes:['katabaku']
             });
-      }
+      },
+
+      stopwordrepo(text){
+            return  Stopword.findOne({
+                    where:{
+                          kata:text
+                    }
+              });
+        }
 }

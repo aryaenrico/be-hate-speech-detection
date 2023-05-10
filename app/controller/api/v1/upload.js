@@ -4,7 +4,7 @@ const readExcel = require("read-excel-file/node");
 const path = require("path");
 const { Dataset } = require("../../../../dataser");
 const preprocessing = require("../../../../utils/utils");
-const { slangwordService } = require("../../../service/preprocessign");
+const service = require("../../../service/preprocessign");
 
 module.exports = {
   async Upload(req, res) {
@@ -12,8 +12,7 @@ module.exports = {
     let dataSourceLower = [];
     let dataSourceRemoveMention = [];
     let dataSourceRemoveSlang = [];
-    let resultKataBaku = "";
-
+    let dataSourceStopWord = [];
     const dir = path.join(
       __dirname,
       `../../../../datasetData/${res.locals.fileName}`
@@ -34,26 +33,18 @@ module.exports = {
         dataSourceLower,
         preprocessing.operationMention
       );
-      // slangword
-      for (i = 0; i < dataSourceRemoveMention.length; i++) {
-        let tweetSplit = preprocessing.splitTweet(dataSourceRemoveMention[i]);
-        for (j = 0; j < tweetSplit.length; j++) {
-          let data = await slangwordService(tweetSplit[j]);
-          if (data != undefined) {
-            tweetSplit[j] = data.dataValues.katabaku;
-          }
-        }
-        for (word of tweetSplit) {
-          resultKataBaku = `${resultKataBaku}${word} `;
-        }
-        dataSourceRemoveSlang.push(
-          new Dataset(
-            dataSourceRemoveMention[i].tanggal,
-            resultKataBaku,
-            dataSourceRemoveMention[i].klasifikasi
-          )
-        );
-      }
+
+      dataSourceRemoveSlang = await preprocessing.operationSlangAndStopWord(
+        dataSourceRemoveMention,
+        service.slangwordService,
+        1
+      );
+      dataSourceStopWord = await preprocessing.operationSlangAndStopWord(
+        dataSourceRemoveSlang,
+        service.stopwordService,
+        2
+      );
+
       res.status(200).json({
         status: "sukses",
         message: "file berhasil id upload",
@@ -61,6 +52,7 @@ module.exports = {
         dataLower: dataSourceLower,
         remove: dataSourceRemoveMention,
         katabaku: dataSourceRemoveSlang,
+        result:dataSourceStopWord
       });
     } catch (error) {
       res.status(500).json({
