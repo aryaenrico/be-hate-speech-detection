@@ -26,6 +26,10 @@ function removeLineBreak(text){
       return text.replace(/(\r\n|\n|\r)/gm, "");
 }
 
+function removePunctuation(text){
+      return text.replace(/[.,\/#!$%\^&\*;:{}=_`~()?'"\[\]]/g,"")
+}
+
 function mappingArray(data,operation){
       let result =[];
       for (i = 0; i < data.length; i++) {
