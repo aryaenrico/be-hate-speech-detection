@@ -1,11 +1,11 @@
 const repository = require ('../repository/preprocessing');
 
 module.exports={
-     async slangwordService(text){
-             return repository.slangwordrepo(text);
+     async slangwordService(){
+             return repository.slangwordrepo();
       },
 
       async stopwordService(text){
-            return repository.stopwordrepo(text);
+            return repository.stopwordrepo();
      }
 }

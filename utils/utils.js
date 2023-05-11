@@ -55,17 +55,15 @@ function operationMention({ tanggal, tweet, klasifikasi }) {
   return new Dataset(tanggal, removePunctuation(result), klasifikasi);
 }
 
-async function operationSlangAndStopWord(data, operation, code) {
+function operationSlangAndStopWord(data, code, map) {
   let arrayWord = [];
   for (i = 0; i < data.length; i++) {
     let resultWord = "";
     let tweetSplit = splitTweet(data[i]);
     for (j = 0; j < tweetSplit.length; j++) {
-      let word = await operation(tweetSplit[j]);
+      let word = map.get(tweetSplit[j]);
       if (word != undefined) {
-        code == 1
-          ? (tweetSplit[j] = word.dataValues.katabaku)
-          : tweetSplit.splice(j, 1);
+        code == 1 ? (tweetSplit[j] = word) : tweetSplit.splice(j, 1);
       }
     }
     for (kata of tweetSplit) {
@@ -77,6 +75,26 @@ async function operationSlangAndStopWord(data, operation, code) {
     );
   }
   return arrayWord;
+}
+
+function createMapSlangWord(data) {
+  let map = [];
+  for (i = 0; i < data.length; i++) {
+    let temp = [];
+    temp.push(data[i].dataValues.tidakbaku, data[i].dataValues.katabaku);
+    map.push(temp);
+  }
+  return map;
+}
+
+function createMapStopWord(data) {
+  let map = [];
+  for (i = 0; i < data.length; i++) {
+    let temp = [];
+    temp.push(data[i].dataValues.kata, 1);
+    map.push(temp);
+  }
+  return map;
 }
 
 module.exports = {
@@ -93,4 +111,6 @@ module.exports = {
   removePunctuation,
   removeExcesSpace,
   operationSlangAndStopWord,
+  createMapSlangWord,
+  createMapStopWord,
 };

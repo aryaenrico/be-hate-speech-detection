@@ -6,8 +6,11 @@ const { Dataset } = require("../../../../dataser");
 const preprocessing = require("../../../../utils/utils");
 const service = require("../../../service/preprocessign");
 
+
 module.exports = {
   async Upload(req, res) {
+    let mapSlangWord;
+    let mapStopWord;
     let dataSource = [];
     let dataSourceLower = [];
     let dataSourceRemoveMention = [];
@@ -34,25 +37,34 @@ module.exports = {
         preprocessing.operationMention
       );
 
+      await Promise.all([
+        service.slangwordService(),
+        service.stopwordService(),
+      ]).then((data) => {
+        mapSlangWord = new Map(preprocessing.createMapSlangWord(data[0]));
+        mapStopWord = new Map(preprocessing.createMapStopWord(data[1]));
+      });
+
+      console.info(mapStopWord);
       dataSourceRemoveSlang = await preprocessing.operationSlangAndStopWord(
         dataSourceRemoveMention,
-        service.slangwordService,
-        1
+        1,
+        mapSlangWord
       );
       dataSourceStopWord = await preprocessing.operationSlangAndStopWord(
         dataSourceRemoveSlang,
-        service.stopwordService,
-        2
+        2,
+        mapStopWord
       );
 
       res.status(200).json({
         status: "sukses",
-        message: "file berhasil id upload",
-        data: dataSource,
-        dataLower: dataSourceLower,
-        remove: dataSourceRemoveMention,
-        katabaku: dataSourceRemoveSlang,
-        result:dataSourceStopWord
+        message: "file berhasil di upload",
+        data: dataSource[1000] ?? "tidak ada",
+        data2: dataSourceLower[1000],
+        data3: dataSourceRemoveMention[1000],
+        data3: dataSourceRemoveSlang[1000],
+        data4: dataSourceStopWord[1000],
       });
     } catch (error) {
       res.status(500).json({
