@@ -45,7 +45,6 @@ module.exports = {
         mapStopWord = new Map(preprocessing.createMapStopWord(data[1]));
       });
 
-      console.info(mapStopWord);
       dataSourceRemoveSlang = await preprocessing.operationSlangAndStopWord(
         dataSourceRemoveMention,
         1,
@@ -60,11 +59,11 @@ module.exports = {
       res.status(200).json({
         status: "sukses",
         message: "file berhasil di upload",
-        data: dataSource[1000] ?? "tidak ada",
-        data2: dataSourceLower[1000],
-        data3: dataSourceRemoveMention[1000],
-        data3: dataSourceRemoveSlang[1000],
-        data4: dataSourceStopWord[1000],
+        dataAsli: dataSource[1],
+        lowerCase: dataSourceLower[1],
+       removeMention: dataSourceRemoveMention[1],
+        slangWord: dataSourceRemoveSlang[1],
+        stopWord: dataSourceStopWord[1],
       });
     } catch (error) {
       res.status(500).json({

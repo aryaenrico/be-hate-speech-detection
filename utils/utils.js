@@ -12,7 +12,7 @@ function parseDate2(text) {
 }
 
 function removeExcesSpace(text) {
-  return text.replace((/\s{2,}/g, " "));
+  return text.replace(/\s{2,}/g, " ");
 }
 
 function removeMention(text) {
@@ -27,7 +27,7 @@ function removeLineBreak(text) {
 }
 
 function removePunctuation(text) {
-  return text.replace(/[.,\/#!$%\^&\*;:{}=_`~()?'"\[\]]/g, "");
+  return text.replace(/[.,\/#!$%\^&\*;:{}=_`~()?'"\[\]]/g, " ");
 }
 
 function mappingArray(data, operation) {
@@ -52,7 +52,7 @@ function operationMention({ tanggal, tweet, klasifikasi }) {
   let tempTweet = `${tweet} `;
   let resultTweet = removeMention(tempTweet);
   let result = removeLink(resultTweet);
-  return new Dataset(tanggal, removePunctuation(result), klasifikasi);
+  return new Dataset(tanggal, removeExcesSpace(removePunctuation(result)), klasifikasi);
 }
 
 function operationSlangAndStopWord(data, code, map) {

@@ -15,6 +15,7 @@ ato:atau
 atuh:kalau begitu
 bacot:banyak bicara
 bakalan:akan
+bikin:membuat
 bales:balas
 bangkotan:tua
 bener2:benar-benar
@@ -91,3 +92,10 @@ kesian:kasihan
 sampe:sampai
 rata2:rata-rata
 lupain:lupakan
+ngk:tidak
+mo:mau
+gegara:disebabkan
+pake:pakai
+tiba2:tiba-tiba
+rpnya:rupanya
+ditaruk:ditaruh
