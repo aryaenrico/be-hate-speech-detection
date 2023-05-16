@@ -18,6 +18,10 @@ function removeExcesSpace(text) {
 function removeMention(text) {
   return text.replace(/[@]{1}(.*?) /g, "");
 }
+
+function removeHastag(text) {
+  return text.replace(/[#]{1}(.*?) /g, "");
+}
 function removeLink(text) {
   return text.replace(/(https:\/\/){1}(.*?) /g, "");
 }
@@ -52,7 +56,8 @@ function operationMention({ tanggal, tweet, klasifikasi }) {
   let tempTweet = `${tweet} `;
   let resultTweet = removeMention(tempTweet);
   let result = removeLink(resultTweet);
-  return new Dataset(tanggal, removeExcesSpace(removePunctuation(result)), klasifikasi);
+  let resultHastag = removeHastag(result);
+  return new Dataset(tanggal, removeExcesSpace(removePunctuation(resultHastag)), klasifikasi);
 }
 
 function operationSlangAndStopWord(data, code, map) {
@@ -77,25 +82,25 @@ function operationSlangAndStopWord(data, code, map) {
   return arrayWord;
 }
 
-function createMapSlangWord(data) {
+function createArrayOfMaps(data,pergi) {
   let map = [];
   for (i = 0; i < data.length; i++) {
-    let temp = [];
-    temp.push(data[i].dataValues.tidakbaku, data[i].dataValues.katabaku);
-    map.push(temp);
+    map.push(pergi(data[i]));
   }
   return map;
+}
+function Slang(data){
+  return [data.dataValues.tidakbaku, data.dataValues.katabaku];
 }
 
-function createMapStopWord(data) {
-  let map = [];
-  for (i = 0; i < data.length; i++) {
-    let temp = [];
-    temp.push(data[i].dataValues.kata, 1);
-    map.push(temp);
-  }
-  return map;
+function Stemming(data){
+  return [data.dataValues.kata_imbuhan, data.dataValues.kata_dasar];
 }
+function StopWord(data){
+  return [data.dataValues.kata, 1];
+}
+
+
 
 module.exports = {
   caseFolding,
@@ -111,6 +116,8 @@ module.exports = {
   removePunctuation,
   removeExcesSpace,
   operationSlangAndStopWord,
-  createMapSlangWord,
-  createMapStopWord,
+  createArrayOfMaps,
+  StopWord,
+  Stemming,
+  Slang
 };

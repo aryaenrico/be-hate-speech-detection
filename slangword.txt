@@ -99,3 +99,29 @@ pake:pakai
 tiba2:tiba-tiba
 rpnya:rupanya
 ditaruk:ditaruh
+wanjing:anjing
+gini:seperti ini
+muka:wajah
+gatot:gagal total
+pada:menjadi
+dulu:dahulu
+tdk:tidak
+dgn:dengan
+jd:jadi
+dr:dari
+tau:tahu
+cuma:hanya
+aje:saja
+medsos:media sosial
+lbh:lebih
+cuma:hanya
+bilang:katakan
+spy:supaya
+krn:karena
+gak:tidak
+bkn:bukan
+sprt:seperti
+panpel:panitia pelaksana
+indo:indonesia
+ama:dengan
+ape:apa

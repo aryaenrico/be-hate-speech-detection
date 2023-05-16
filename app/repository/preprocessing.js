@@ -1,6 +1,6 @@
 
-const {Slangword} = require("../../models");
-const {Stopword} = require("../../models");
+const {Slangword,Stopword,stemming} = require("../../models");
+
 module.exports={
         slangwordrepo(){
           return  Slangword.findAll({
@@ -12,5 +12,11 @@ module.exports={
             return  Stopword.findAll({
                   attributes:['kata']
               });
+        },
+
+        stemmingRepo(){
+            return stemming.findAll({
+                  attributes:['kata_imbuhan','kata_dasar']
+            })
         }
 }

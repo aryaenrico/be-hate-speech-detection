@@ -6,15 +6,16 @@ const { Dataset } = require("../../../../dataser");
 const preprocessing = require("../../../../utils/utils");
 const service = require("../../../service/preprocessign");
 
-
 module.exports = {
   async Upload(req, res) {
     let mapSlangWord;
     let mapStopWord;
+    let mapStemming;
     let dataSource = [];
     let dataSourceLower = [];
     let dataSourceRemoveMention = [];
     let dataSourceRemoveSlang = [];
+    let dataStemming = [];
     let dataSourceStopWord = [];
     const dir = path.join(
       __dirname,
@@ -40,9 +41,17 @@ module.exports = {
       await Promise.all([
         service.slangwordService(),
         service.stopwordService(),
+        service.stemmingService(),
       ]).then((data) => {
-        mapSlangWord = new Map(preprocessing.createMapSlangWord(data[0]));
-        mapStopWord = new Map(preprocessing.createMapStopWord(data[1]));
+        mapSlangWord = new Map(
+          preprocessing.createArrayOfMaps(data[0], preprocessing.Slang)
+        );
+        mapStopWord = new Map(
+          preprocessing.createArrayOfMaps(data[1], preprocessing.StopWord)
+        );
+        mapStemming = new Map(
+          preprocessing.createArrayOfMaps(data[2], preprocessing.Stemming)
+        );
       });
 
       dataSourceRemoveSlang = await preprocessing.operationSlangAndStopWord(
@@ -50,8 +59,14 @@ module.exports = {
         1,
         mapSlangWord
       );
-      dataSourceStopWord = await preprocessing.operationSlangAndStopWord(
+
+      dataStemming = await preprocessing.operationSlangAndStopWord(
         dataSourceRemoveSlang,
+        1,
+        mapStemming
+      );
+      dataSourceStopWord = await preprocessing.operationSlangAndStopWord(
+        dataStemming,
         2,
         mapStopWord
       );
@@ -59,11 +74,12 @@ module.exports = {
       res.status(200).json({
         status: "sukses",
         message: "file berhasil di upload",
-        dataAsli: dataSource[1],
-        lowerCase: dataSourceLower[1],
-       removeMention: dataSourceRemoveMention[1],
-        slangWord: dataSourceRemoveSlang[1],
-        stopWord: dataSourceStopWord[1],
+        dataAsli: dataSource[6],
+        lowerCase: dataSourceLower[6],
+        removeMention: dataSourceRemoveMention[6],
+        slangWord: dataSourceRemoveSlang,
+        stemming: dataStemming,
+        stopWord: dataSourceStopWord[6],
       });
     } catch (error) {
       res.status(500).json({

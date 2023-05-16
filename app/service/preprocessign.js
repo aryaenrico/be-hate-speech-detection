@@ -5,7 +5,10 @@ module.exports={
              return repository.slangwordrepo();
       },
 
-      async stopwordService(text){
+      async stopwordService(){
             return repository.stopwordrepo();
+     },
+     async stemmingService(text){
+          return repository.stemmingRepo();
      }
 }
