@@ -8,7 +8,10 @@ module.exports={
       async stopwordService(){
             return repository.stopwordrepo();
      },
-     async stemmingService(text){
+     async stemmingService(){
           return repository.stemmingRepo();
+     },
+     async uploadData(data){
+          return repository.uploadDataSet(data);
      }
 }

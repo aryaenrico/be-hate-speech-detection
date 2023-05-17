@@ -1,5 +1,5 @@
 
-const {Slangword,Stopword,stemming} = require("../../models");
+const {Slangword,Stopword,stemming,Dataset} = require("../../models");
 
 module.exports={
         slangwordrepo(){
@@ -18,5 +18,9 @@ module.exports={
             return stemming.findAll({
                   attributes:['kata_imbuhan','kata_dasar']
             })
+        },
+
+        uploadDataSet(data){
+            return Dataset.bulkCreate(data);
         }
 }

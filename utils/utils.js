@@ -47,12 +47,12 @@ function splitTweet({ tweet }) {
   return splitTweet;
 }
 
-function operationLower({ tanggal, tweet, klasifikasi }) {
+function operationLower({ tanggal='23/03.2023', tweet, klasifikasi }) {
   let tempTweet = removeLineBreak(tweet);
   return new Dataset(tanggal, caseFolding(tempTweet), klasifikasi);
 }
 
-function operationMention({ tanggal, tweet, klasifikasi }) {
+function operationMention({ tanggal ='23/03.2023', tweet, klasifikasi }) {
   let tempTweet = `${tweet} `;
   let resultTweet = removeMention(tempTweet);
   let result = removeLink(resultTweet);
@@ -68,7 +68,7 @@ function operationSlangAndStopWord(data, code, map) {
     for (j = 0; j < tweetSplit.length; j++) {
       let word = map.get(tweetSplit[j]);
       if (word != undefined) {
-        code == 1 ? (tweetSplit[j] = word) : tweetSplit.splice(j, 1);
+        code == 1 ? (tweetSplit[j] = word) : tweetSplit[j]="";
       }
     }
     for (kata of tweetSplit) {
@@ -76,7 +76,7 @@ function operationSlangAndStopWord(data, code, map) {
     }
 
     arrayWord.push(
-      new Dataset(data[i].tanggal, resultWord.trim(), data[i].klasifikasi)
+      new Dataset(data[i].tanggal, removeExcesSpace(resultWord.trim()), data[i].klasifikasi)
     );
   }
   return arrayWord;
