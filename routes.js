@@ -8,11 +8,7 @@ const controller =require ("./app/controller");
 const upload =uploadFile.single('file');
 
 apiRouter.post("/api/v1/file",[cors(),controller.api.v1.uploadController.uploadFile],controller.api.v1.uploadController.Upload);
-apiRouter.get("",function(req,res){
-      res.status(200).json({
-            message:"hai"
-      })
-})
+apiRouter.get("/api/v1/feature",cors(),controller.api.v1.clasificationController.featureExtraction);
 appRouter.use(apiRouter)
 server.use(apiRouter);
 server.use(cors());

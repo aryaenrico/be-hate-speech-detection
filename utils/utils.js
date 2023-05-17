@@ -47,12 +47,12 @@ function splitTweet({ tweet }) {
   return splitTweet;
 }
 
-function operationLower({ tanggal='23/03.2023', tweet, klasifikasi }) {
+function operationLower({ tanggal, tweet, klasifikasi }) {
   let tempTweet = removeLineBreak(tweet);
   return new Dataset(tanggal, caseFolding(tempTweet), klasifikasi);
 }
 
-function operationMention({ tanggal ='23/03.2023', tweet, klasifikasi }) {
+function operationMention({ tanggal, tweet, klasifikasi }) {
   let tempTweet = `${tweet} `;
   let resultTweet = removeMention(tempTweet);
   let result = removeLink(resultTweet);

@@ -1,2 +1,3 @@
 const uploadController = require ('./upload');
-module.exports ={uploadController};
+const clasificationController = require('./clasification');
+module.exports ={uploadController,clasificationController};
