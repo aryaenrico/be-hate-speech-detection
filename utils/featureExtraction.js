@@ -9,7 +9,6 @@ async function tf_df(dataset, feature, operation = 1) {
         if (doc[k] == feature[j]) {
           score++;
           if (operation == 2) {
-                    console.info("ada");
             break;
           }
         }
@@ -52,4 +51,17 @@ async function countWeight(tf,idf,feature) {
   return result;
 }
 
-module.exports = { tf_df, idf,countWeight };
+async function countAllWeight(weight,feature){
+  let result=[];
+  for (i=0;i<feature.length;i++){
+    let score=0;
+    for(j=0;j<weight.length;j++){
+      score = score+weight[j][i]
+    }
+    result.push(score);
+   }
+   return result;
+
+}
+
+module.exports = { tf_df, idf,countWeight,countAllWeight };

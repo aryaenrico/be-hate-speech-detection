@@ -14,10 +14,16 @@ module.exports = {
     let tfNhs;
     let dfNHs;
     let dfHs;
+    let dfFull;
     let idfHs;
     let idfNhs;
+    let idfFull;
     let wHs;
     let wNhs;
+    let sumHs;
+    let sumNhs;
+    let probHs;
+    let probNhs;
 
     const data = await service.getData();
     for (i = 0; i < data.length; i++) {
@@ -41,6 +47,9 @@ module.exports = {
         ? datasetNegatif.push(dataset_All[i])
         : datasetPositif.push(dataset_All[i]);
     }
+
+    probHs  = datasetNegatif.length / dataset_All.length;
+    probNhs = datasetPositif.length / dataset_All.length;
     await Promise.all([
       extraction_fitur.tf_df(datasetPositif, feature, 1),
       extraction_fitur.tf_df(datasetNegatif, feature, 1),
@@ -52,17 +61,21 @@ module.exports = {
     await Promise.all([
       extraction_fitur.tf_df(datasetPositif, feature, 2),
       extraction_fitur.tf_df(datasetNegatif, feature, 2),
+      extraction_fitur.tf_df(dataset_All,feature,2)
     ]).then((resultTf) => {
       dfNHs = resultTf[0];
       dfHs = resultTf[1];
+      dfFull =resultTf[2];
     });
 
     await Promise.all([
       extraction_fitur.idf(dfNHs, feature),
       extraction_fitur.idf(dfHs, feature),
+      extraction_fitur.idf(dfFull,feature)
     ]).then((resultTf) => {
       idfHs = resultTf[1];
       idfNhs = resultTf[0];
+      idfFull = resultTf[2];
     });
 
     await Promise.all([
@@ -72,14 +85,20 @@ module.exports = {
       wNhs = resultTf[0];
       wHs = resultTf[1];
     });
-    console.info(dfNHs.length);
 
+    await Promise.all([
+      extraction_fitur.countAllWeight(wNhs, feature),
+      extraction_fitur.countAllWeight(wHs, feature),
+    ]).then((resultTf) => {
+      sumNhs = resultTf[0];
+      sumHs = resultTf[1];
+    });
+    
     res.status(200).json({
       status: "ok",
       message: "berhasil",
       bag_of_word: feature,
-      wpositif: wNhs,
-      wnegatif:wHs
+      idfFull:idfFull
     });
   },
 };
