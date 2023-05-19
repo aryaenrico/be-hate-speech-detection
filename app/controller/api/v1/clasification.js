@@ -81,6 +81,16 @@ module.exports = {
       
     }
 
+    //perhitungan w untuk nhs
+    for (i=0;i<tfHs.length;i++){
+      let temp=[];
+      for (j=0;j<feature.length;j++){
+        temp.push(tfHs[i][j] * idfHs[j]);
+      }
+      wNhs.push(temp);
+    } 
+
+
   
 
     // for (i = 0; i < 2; i++) {
@@ -108,7 +118,7 @@ module.exports = {
       tf:tfHs,
       df:dfNHs,
       idfHs:idfHs,
-      kata:datasetPositif[0].tweet
+      weight:wNhs
     });
   },
 };
