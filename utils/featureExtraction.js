@@ -14,7 +14,7 @@ async function tf_df(dataset, feature, operation = 1) {
         }
       }
       operation == 1
-        ? num.push((score / doc.length).toFixed(3))
+        ? num.push((score / doc.length))
         : num.push(score);
     }
     result.push(num);
@@ -63,5 +63,12 @@ async function countAllWeight(weight,feature){
    return result;
 
 }
+function getRandomNumber(maximum){
+  let random;
+  random = Math.random()*maximum;
+  random =Math.floor(random);
+  return random;
 
-module.exports = { tf_df, idf,countWeight,countAllWeight };
+}
+
+module.exports = { tf_df, idf,countWeight,countAllWeight,getRandomNumber };
