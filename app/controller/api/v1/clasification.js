@@ -30,9 +30,11 @@ module.exports = {
     let sumNhs;
     let probHs;
     let probNhs;
-    let weight=[0,0,0];
-    
-    
+    let weight = [0, 0, 0];
+    let resultclasification = [];
+    let calculationNhs = [];
+    let calculationhs = [];
+    let result = [];
 
     const data = await service.getData();
     countTest = Math.floor((data.length * test) / 100);
@@ -112,19 +114,45 @@ module.exports = {
       sumHs = resultTf[1];
     });
 
-    for (i=0;i<feature.length;i++){
-      mapNonhs.set(feature[i],sumNhs[i])
-      mapHs.set(feature[i],sumHs[i])
-      weight[0] = weight[0]+idfFull[i];
-      weight[1] =weight[1]+sumNhs[i];
-      weight[2] =weight[2]+sumHs[i];
+    for (i = 0; i < feature.length; i++) {
+      mapNonhs.set(feature[i], sumNhs[i]);
+      mapHs.set(feature[i], sumHs[i]);
+      weight[0] = weight[0] + idfFull[i];
+      weight[1] = weight[1] + sumNhs[i];
+      weight[2] = weight[2] + sumHs[i];
     }
-    
-    
+
+    // klasification process
+    for (i = 0; i < dataTest.length; i++) {
+      let word = dataTest[i].tweet.split(" ");
+      let hs = [];
+      let nhs = [];
+      let resultpositif = 1;
+      let resultNegatif = 1;
+      for (j = 0; j < word.length; j++) {
+        let wtermPositrif = mapNonhs.get(word[j]) ?? 0;
+        let wtermnegatif = mapHs.get(word[j]) ?? 0;
+        let Postif = (wtermPositrif + 1) / (weight[1] + weight[0]);
+        let Negatif = (wtermnegatif + 1) / (weight[2] + weight[0]);
+        resultpositif = resultpositif * Postif.toFixed(5);
+        resultNegatif = resultNegatif * Negatif.toFixed(5);
+        nhs.push(Postif.toFixed(5));
+        hs.push(Negatif.toFixed(5));
+      }
+      resultpositif = resultpositif * probNhs.toFixed(5);
+      resultNegatif = resultNegatif * probHs.toFixed(5);
+      resultpositif > resultNegatif ? result.push("nhs") : result.push("hs");
+      calculationNhs.push(nhs);
+      calculationhs.push(hs);
+    }
+
     res.status(200).json({
       status: "ok",
       message: "berhasil",
-      weight:weight 
+      dataTest: dataTest,
+      result: result,
+      perhitunganPositif: calculationNhs,
+      perhitunganNegatif: calculationhs,
     });
   },
 };
