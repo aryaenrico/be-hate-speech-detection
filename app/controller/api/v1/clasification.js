@@ -9,6 +9,8 @@ module.exports = {
 
     let bag_of_word = new Set();
     let random_dataset = new Set();
+    let mapHs = new Map();
+    let mapNonhs = new Map();
     let arr_random_dataset = [];
     let dataset_All = [];
     let dataTest = [];
@@ -28,6 +30,9 @@ module.exports = {
     let sumNhs;
     let probHs;
     let probNhs;
+    let weight=[0,0,0];
+    
+    
 
     const data = await service.getData();
     countTest = Math.floor((data.length * test) / 100);
@@ -107,18 +112,19 @@ module.exports = {
       sumHs = resultTf[1];
     });
 
+    for (i=0;i<feature.length;i++){
+      mapNonhs.set(feature[i],sumNhs[i])
+      mapHs.set(feature[i],sumHs[i])
+      weight[0] = weight[0]+idfFull[i];
+      weight[1] =weight[1]+sumNhs[i];
+      weight[2] =weight[2]+sumHs[i];
+    }
+    
+    
     res.status(200).json({
       status: "ok",
       message: "berhasil",
-      feature: feature,
-      positif: tfNhs,
-      negatif: tfHs,
-      idf: idfNhs,
-      idfnegatif: idfHs,
-      weightPositif: wNhs,
-      weigNegatif: wHs,
-      sumPositif: sumNhs,
-      sumNegatif: sumHs,
+      weight:weight 
     });
   },
 };
