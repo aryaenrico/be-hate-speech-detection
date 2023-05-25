@@ -35,6 +35,11 @@ module.exports = {
     let calculationNhs = [];
     let calculationhs = [];
     let result = [];
+    let TP=0;
+    let FP=0;
+    let TN=0;
+    let FN=0;
+    let akurasi,presisi,recal;
 
     const data = await service.getData();
     countTest = Math.floor((data.length * test) / 100);
@@ -146,6 +151,29 @@ module.exports = {
       calculationhs.push(hs);
     }
 
+
+    // confusion matrix process
+    for (i=0;i<dataTest.length;i++){
+     if (result[i] === "nhs"){
+      if (result[i] === dataTest[i].klasifikasi){
+        TP++;
+      }else{
+        FP++;
+      }
+     }else{
+      if (result[i] === "hs"){
+        if (result[i] === dataTest[i].klasifikasi){
+          TN++;
+        }else{
+          FN++;
+        }
+     }
+    }
+    }
+    akurasi =(TP+TN) /(TP+TN+FP+FN );
+    presisi =(TP)/(TP+FP);
+    recal=(TP)/(TP+FN); 
+
     res.status(200).json({
       status: "ok",
       message: "berhasil",
@@ -153,6 +181,9 @@ module.exports = {
       result: result,
       perhitunganPositif: calculationNhs,
       perhitunganNegatif: calculationhs,
+      acuracy:akurasi,
+      presisi:presisi,
+      recal:recal
     });
   },
 };
