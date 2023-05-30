@@ -52,6 +52,7 @@ module.exports = {
     arr_random_dataset = [...random_dataset];
 
     for (i = 0; i < data.length; i++) {
+      // improve time complexity
       if (arr_random_dataset.includes(i)) {
         dataTest.push(
           new DataTraining(
@@ -83,6 +84,7 @@ module.exports = {
 
     probHs = datasetNegatif.length / dataset_All.length;
     probNhs = datasetPositif.length / dataset_All.length;
+    
     await Promise.all([
       extraction_fitur.tf_df(datasetPositif, feature),
       extraction_fitur.tf_df(datasetNegatif, feature),
@@ -119,6 +121,7 @@ module.exports = {
       sumHs = resultTf[1];
     });
 
+    // create feature bag of word for each class respective with their value
     for (i = 0; i < feature.length; i++) {
       mapNonhs.set(feature[i], sumNhs[i]);
       mapHs.set(feature[i], sumHs[i]);
