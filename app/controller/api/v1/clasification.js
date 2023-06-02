@@ -49,11 +49,12 @@ module.exports = {
       random_dataset.add(extraction_fitur.getRandomNumber(data.length - 1));
     }
 
-    arr_random_dataset = [...random_dataset];
+    arr_random_dataset =extraction_fitur.mergeSort(arr_random_dataset=[...random_dataset]);
+    console.info(arr_random_dataset);
 
     for (i = 0; i < data.length; i++) {
       // improve time complexity
-      if (arr_random_dataset.includes(i)) {
+      if (extraction_fitur.Search(arr_random_dataset,0,arr_random_dataset.length-1,i)) {
         dataTest.push(
           new DataTraining(
             data[i].dataValues.data_stopword,
@@ -129,21 +130,19 @@ module.exports = {
       weight[1] = weight[1] + sumNhs[i];
       weight[2] = weight[2] + sumHs[i];
     }
-
+    const Konstanta =1;
     // klasification process
     for (i = 0; i < dataTest.length; i++) {
       let word = dataTest[i].tweet.split(" ");
       let hs = [];
       let nhs = [];
-      let resultpositif = 1;
-      let resultNegatif = 1;
       for (j = 0; j < word.length; j++) {
         let wtermPositrif = mapNonhs.get(word[j]) ?? 0;
         let wtermnegatif = mapHs.get(word[j]) ?? 0;
         let Postif = (wtermPositrif + 1) / (weight[1] + weight[0]);
         let Negatif = (wtermnegatif + 1) / (weight[2] + weight[0]);
-        resultpositif = resultpositif * Postif.toFixed(5);
-        resultNegatif = resultNegatif * Negatif.toFixed(5);
+        resultpositif = Konstanta * Postif.toFixed(5);
+        resultNegatif = Konstanta * Negatif.toFixed(5);
         nhs.push(Postif.toFixed(5));
         hs.push(Negatif.toFixed(5));
       }

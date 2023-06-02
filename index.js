@@ -9,13 +9,15 @@ const lineReader = require('line-reader');
   
 
       let slangword=[];
-      lineReader.eachLine('./stopword.txt', (line, last) => {
-            Stopword.create(new WordStop(line));
+     lineReader.eachLine('./pujangga_slang_word.txt', (line, last) => {
+            let arr_temp = line.split(":");
+            Slangword.create(new WordSlang(arr_temp[0],arr_temp[1]));
+     
         });
      
        
 
 
-// Slangword.bulkCreate(slangworldData).then(()=>{
+// Slangword.bulkCreate(slangword).then(()=>{
 //       console.log("success");
 // })

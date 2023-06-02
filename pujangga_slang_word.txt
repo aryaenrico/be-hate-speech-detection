@@ -1154,7 +1154,6 @@ aspal:asli tetapi palsu
 astul:asal tulis
 ath:kalau begitu
 atuh:kalau begitu
-au ah:tidak mau tahu
 bacot:banyak bicara
 bandes:bantuan desa
 bangdes:pembangunan desa

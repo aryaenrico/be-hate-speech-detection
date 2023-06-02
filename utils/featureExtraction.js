@@ -68,7 +68,67 @@ function getRandomNumber(maximum){
   random = Math.random()*maximum;
   random =Math.floor(random);
   return random;
-
 }
 
-module.exports = { tf_df, idf,countWeight,countAllWeight,getRandomNumber };
+function Search(data, start, end, x) {
+  let mid = Math.floor((start + end) / 2);
+  if (start > end) {
+    return false;
+  } else if (data[mid] == x) {
+    return true;
+  } else if (data[mid] > x) {
+   return  Search(data, start, mid - 1, x);
+  } else if (data[mid] < x) {
+    return Search(data, mid + 1, end, x);
+  }
+}
+
+function mergeSort(arr) {
+  let arr_lenghth = arr.length;
+  let midIndex = Math.floor(arr_lenghth / 2);
+
+  if (arr_lenghth == 1) {
+    return arr;
+  }
+  let leftArray = [];
+  let RightArray = [];
+  for (i = 0; i < midIndex; i++) {
+    leftArray.push(arr[i]);
+  }
+  for (i = midIndex; i < arr_lenghth; i++) {
+    RightArray.push(arr[i]);
+  }
+  let left = mergeSort(leftArray);
+  let right = mergeSort(RightArray);
+  let result = Sort(left, right);
+  return result;
+}
+
+function Sort(left, right) {
+  let sortedArr = [];
+  let i = 0;
+  let k = 0;
+
+  while (i < left.length && k < right.length) {
+    if (left[i] < right[i]) {
+      sortedArr.push(left[i]);
+      i++;
+    } else {
+      sortedArr.push(right[k]);
+      k++;
+    }
+  }
+
+  while (i < left.length) {
+    sortedArr.push(left[i]);
+    i++;
+  }
+
+  while (k < right.length) {
+    sortedArr.push(right[k]);
+    k++;
+  }
+  return sortedArr;
+}
+
+module.exports = { tf_df, idf,countWeight,countAllWeight,getRandomNumber,Search,mergeSort,Sort };
