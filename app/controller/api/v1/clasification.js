@@ -136,13 +136,15 @@ module.exports = {
       let word = dataTest[i].tweet.split(" ");
       let hs = [];
       let nhs = [];
+      let resultpositif = 1;
+      let resultNegatif = 1;
       for (j = 0; j < word.length; j++) {
         let wtermPositrif = mapNonhs.get(word[j]) ?? 0;
         let wtermnegatif = mapHs.get(word[j]) ?? 0;
         let Postif = (wtermPositrif + 1) / (weight[1] + weight[0]);
         let Negatif = (wtermnegatif + 1) / (weight[2] + weight[0]);
-        resultpositif = Konstanta * Postif.toFixed(5);
-        resultNegatif = Konstanta * Negatif.toFixed(5);
+        resultpositif = resultpositif * Postif.toFixed(5);
+        resultNegatif = resultNegatif * Negatif.toFixed(5);
         nhs.push(Postif.toFixed(5));
         hs.push(Negatif.toFixed(5));
       }
@@ -177,7 +179,7 @@ module.exports = {
     recal=(TP)/(TP+FN); 
 
     res.status(200).json({
-      status: "ok",
+     
       message: "berhasil",
       dataTest: dataTest,
       result: result,
@@ -186,6 +188,7 @@ module.exports = {
       acuracy:akurasi,
       presisi:presisi,
       recal:recal
+      
     });
   },
 };

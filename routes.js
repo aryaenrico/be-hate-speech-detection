@@ -9,8 +9,9 @@ const upload =uploadFile.single('file');
 
 apiRouter.post("/api/v1/file",[cors(),controller.api.v1.uploadController.uploadFile],controller.api.v1.uploadController.Upload);
 apiRouter.get("/api/v1/feature",cors(),controller.api.v1.clasificationController.featureExtraction);
-appRouter.use(apiRouter)
+apiRouter.post("/api/v1/datasets",cors(),controller.api.v1.dataset.addDataset);
+appRouter.use(apiRouter);
+server.use(express.json());
 server.use(apiRouter);
-server.use(cors());
 module.exports = server;
 

@@ -1,3 +1,4 @@
 const uploadController = require ('./upload');
 const clasificationController = require('./clasification');
-module.exports ={uploadController,clasificationController};
+const dataset = require('./datasets');
+module.exports ={uploadController,clasificationController,dataset};

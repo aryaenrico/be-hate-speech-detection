@@ -1,5 +1,7 @@
 
-const {Slangword,Stopword,stemming,Dataset} = require("../../models");
+const {Slangword,Stopword,stemming,Dataset, sequelize} = require("../../models");
+
+
 
 module.exports={
         slangwordrepo(){
