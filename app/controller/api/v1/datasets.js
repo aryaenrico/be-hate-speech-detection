@@ -21,9 +21,6 @@ module.exports = {
       tempDataset.push(
         new Dataset(date.format(new Date(), "YYYY/MM/DD"), tweet, klasifikasi)
       );
-      console.info(tempDataset);
-      console.info(tempDataset.length);
-
        await Promise.all([
         service.slangwordService(),
         service.stopwordService(),
@@ -63,9 +60,9 @@ module.exports = {
           tempDataset[i].tanggal,
           tweet,
           datalower[i].tweet,
+          dataremovemention[i].tweet,
           dataslang[i].tweet,
           datastemming[i].tweet,
-          dataremovemention[i].tweet,
           datastop[i].tweet,
           klasifikasi
         );
@@ -74,7 +71,7 @@ module.exports = {
 
       res.status(200).json({
         data: "sukses",
-        wow:result
+        dataPreprocessing:result
         
       });
     }catch(err){

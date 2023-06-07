@@ -18,6 +18,9 @@ function removeExcesSpace(text) {
 function removeMention(text) {
   return text.replace(/[@]{1}(.*?) /g, "");
 }
+function removeNumber(text){
+  return text.replace(/[0-9]/g, "");
+}
 
 function removeHastag(text) {
   return text.replace(/[#]{1}(.*?) /g, "");
@@ -30,8 +33,13 @@ function removeLineBreak(text) {
   return text.replace(/(\r\n|\n|\r)/gm, "");
 }
 
+function removeOnlyOneCharacter(text){
+  return text.replace(/ [a-z]{1} /g," ");
+ 
+}
+
 function removePunctuation(text) {
-  return text.replace(/[.,\/#!$%\^&\*;:{}=_`~()?'"\[\]]/g, " ");
+  return text.replace(/[.,-\/#!$%\^&\*;:{}=_`~()?'"\[\]]/g, " ");
 }
 
 function mappingArray(data, operation) {
@@ -52,12 +60,21 @@ function operationLower({ tanggal, tweet, klasifikasi }) {
   return new Dataset(tanggal, caseFolding(tempTweet), klasifikasi);
 }
 
+function onlyText(text){
+  return text.replace(/[^a-z]/g, " ");
+}
+
 function operationMention({ tanggal, tweet, klasifikasi }) {
   let tempTweet = `${tweet} `;
-  let resultTweet = removeMention(tempTweet);
-  let result = removeLink(resultTweet);
-  let resultHastag = removeHastag(result);
-  return new Dataset(tanggal, removeExcesSpace(removePunctuation(resultHastag)), klasifikasi);
+  let resultMention = removeMention(tempTweet);
+  let resultLink = removeLink(resultMention);
+  let resultHastag = removeHastag(resultLink);
+  let resutltNumber = removeNumber(resultHastag);
+   let resultRemoveEmote =onlyText(resutltNumber);
+  let removeTandaBaca =removePunctuation(resultRemoveEmote);
+  let tempTweet2 = `${removeTandaBaca} `;
+
+  return new Dataset(tanggal, removeExcesSpace(removeOnlyOneCharacter(tempTweet2)), klasifikasi);
 }
 
 function operationSlangAndStopWord(data, code, map) {

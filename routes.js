@@ -12,6 +12,8 @@ apiRouter.get("/api/v1/feature",cors(),controller.api.v1.clasificationController
 apiRouter.post("/api/v1/datasets",cors(),controller.api.v1.dataset.addDataset);
 appRouter.use(apiRouter);
 server.use(express.json());
+server.use(cors());
 server.use(apiRouter);
+
 module.exports = server;
 
