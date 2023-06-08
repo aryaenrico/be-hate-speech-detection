@@ -64,7 +64,7 @@ function onlyText(text){
   return text.replace(/[^a-z]/g, " ");
 }
 
-function operationMention({ tanggal, tweet, klasifikasi }) {
+function operationMention({ tanggal, tweet, klasifikasi },code=1) {
   let tempTweet = `${tweet} `;
   let resultMention = removeMention(tempTweet);
   let resultLink = removeLink(resultMention);
@@ -73,8 +73,13 @@ function operationMention({ tanggal, tweet, klasifikasi }) {
    let resultRemoveEmote =onlyText(resutltNumber);
   let removeTandaBaca =removePunctuation(resultRemoveEmote);
   let tempTweet2 = `${removeTandaBaca} `;
+  if (code == 1){
+    return new Dataset(tanggal, removeExcesSpace(removeOnlyOneCharacter(tempTweet2)), klasifikasi);
+  }else{
+    return removeExcesSpace(removeOnlyOneCharacter(tempTweet2))
+  }
 
-  return new Dataset(tanggal, removeExcesSpace(removeOnlyOneCharacter(tempTweet2)), klasifikasi);
+  
 }
 
 function operationSlangAndStopWord(data, code, map) {
@@ -97,6 +102,22 @@ function operationSlangAndStopWord(data, code, map) {
     );
   }
   return arrayWord;
+}
+
+function operationSlangAndStopWord1Data(data, code, map) {
+  
+    let resultWord = "";
+    let tweetSplit = data.split(" ");
+    for (j = 0; j < tweetSplit.length; j++) {
+      let word = map.get(tweetSplit[j]);
+      if (word != undefined) {
+        code == 1 ? (tweetSplit[j] = word) : tweetSplit[j]="";
+      }
+    }
+    for (kata of tweetSplit) {
+      resultWord = `${resultWord} ${kata}`;
+    }
+  return removeExcesSpace(resultWord.trim());
 }
 
 function createArrayOfMaps(data,pergi) {
@@ -136,5 +157,7 @@ module.exports = {
   createArrayOfMaps,
   StopWord,
   Stemming,
-  Slang
+  Slang,
+  removeOnlyOneCharacter,
+  operationSlangAndStopWord1Data
 };

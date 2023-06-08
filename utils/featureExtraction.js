@@ -14,7 +14,7 @@ async function tf_df(dataset, feature, operation = 1) {
         }
       }
       operation == 1
-        ? num.push((score / doc.length))
+        ? num.push((score / doc.length).toFixed(7))
         : num.push(score);
     }
     result.push(num);
@@ -44,7 +44,7 @@ async function countWeight(tf,idf,feature) {
   for (i = 0; i < tf.length; i++) {
     let temp = [];
     for (j = 0; j < feature.length; j++) {
-      temp.push(tf[i][j] * idf[j]);
+      temp.push((tf[i][j] * idf[j]));
     }
     result.push(temp);
   }
@@ -56,12 +56,20 @@ async function countAllWeight(weight,feature){
   for (i=0;i<feature.length;i++){
     let score=0;
     for(j=0;j<weight.length;j++){
-      score = score+weight[j][i]
+      score = (score+weight[j][i]);
     }
     result.push(score);
    }
    return result;
 
+}
+
+function compare(a,b){
+  if (a>b){
+    return true;
+  }else{
+    return false;
+  }
 }
 function getRandomNumber(maximum){
   let random;
@@ -131,4 +139,4 @@ function Sort(left, right) {
   return sortedArr;
 }
 
-module.exports = { tf_df, idf,countWeight,countAllWeight,getRandomNumber,Search,mergeSort,Sort };
+module.exports = { tf_df, idf,countWeight,countAllWeight,getRandomNumber,Search,mergeSort,Sort,compare };
