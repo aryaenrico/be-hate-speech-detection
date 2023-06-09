@@ -1,3 +1,4 @@
+const { text } = require("express");
 const { Dataset } = require("../dataser");
 
 function caseFolding(text) {
@@ -29,12 +30,21 @@ function removeLink(text) {
   return text.replace(/(https:\/\/){1}(.*?) /g, "");
 }
 
+function removeWordNya(text){
+  let word = text.split(" ");
+  let result="";
+  for (i=0;i<word.length;i++){
+    result =`${result} ${word[i].replace('nya','')}`;
+  }
+  return result;
+}
+
 function removeLineBreak(text) {
   return text.replace(/(\r\n|\n|\r)/gm, "");
 }
 
 function removeOnlyOneCharacter(text){
-  return text.replace(/ [a-z]{1} /g," ");
+  return text.replace(/ [a-z]{1,3} /g," ");
  
 }
 
@@ -70,11 +80,11 @@ function operationMention({ tanggal, tweet, klasifikasi },code=1) {
   let resultLink = removeLink(resultMention);
   let resultHastag = removeHastag(resultLink);
   let resutltNumber = removeNumber(resultHastag);
-   let resultRemoveEmote =onlyText(resutltNumber);
+  let resultRemoveEmote =onlyText(resutltNumber);
   let removeTandaBaca =removePunctuation(resultRemoveEmote);
-  let tempTweet2 = `${removeTandaBaca} `;
+  let tempTweet2 = ` ${removeTandaBaca} `;
   if (code == 1){
-    return new Dataset(tanggal, removeExcesSpace(removeOnlyOneCharacter(tempTweet2)), klasifikasi);
+    return new Dataset(tanggal,removeExcesSpace(removeOnlyOneCharacter(tempTweet2)), klasifikasi);
   }else{
     return removeExcesSpace(removeOnlyOneCharacter(tempTweet2))
   }

@@ -194,18 +194,27 @@ module.exports = {
     let resultprovokasi = 1;
     let resultancamankekerasan = 1;
     let maxData = [];
+    let termPositif=[];
+    let termPenghinaan=[];
+    let termProvokasi=[];
+    let termAncamanKekerasan=[];
 
     let word = datasetObj.tweet.split(" ");
     for (j = 0; j < word.length; j++) {
       let wtermPositif = mapPositif.get(word[j]) ?? 0;
+      termPositif.push(wtermPositif);
       let wtermPenghinaan = mapPenghinaan.get(word[j]) ?? 0;
+      termPenghinaan.push(wtermPenghinaan);
       let wtermProvokasi = mapProvokasi.get(word[j]) ?? 0;
+      termProvokasi.push(wtermProvokasi);
       let wtermAncamanKekerasan = mapAncamanKekerasan.get(word[j]) ?? 0;
+      termAncamanKekerasan.push(wtermAncamanKekerasan);
+
       let Positif = (wtermPositif + 1) / (weight[0] + weight[4]);
       let Penghinaan = (wtermPenghinaan + 1) / (weight[1] + weight[4]);
       let Provokasi = (wtermProvokasi + 1) / (weight[2] + weight[4]);
-      let AncamanKekerasan =
-        (wtermAncamanKekerasan + 1) / (weight[3] + weight[4]);
+      let AncamanKekerasan = (wtermAncamanKekerasan + 1) / (weight[3] + weight[4]);
+
       resultpositif = resultpositif * Positif;
       resultpenghinaan = resultpenghinaan * Penghinaan;
       resultprovokasi = resultprovokasi * Provokasi;
@@ -387,16 +396,25 @@ module.exports = {
     res.status(200).json({
       message: "berhasil",
       dataclean: datasetObj.tweet,
-      feature_kata: feature,
+      datacleanArr:word,
+      probPositif:probPositif,
+      probPenghinaan:probPenghinaan,
+      probProvokasi:probProvokasi,
+      probAncamanKekerasan:probAncamanKekerasan,
       klasifikasi: klasifikasi,
-      bobot_Term_Positif: sumPositif,
-      bobot_Term_Penghinaan: sumPenghinaan,
-      bobot_Term_AncamanKekerasan: sumAcnamanKekerasan,
-      bobot_term_Provokasi: sumProvokasi,
+      termPositif:termPositif,
+      termProvokasi:termProvokasi,
+      termPenghinaan:termPenghinaan,
+      resultpositif,
+      resultprovokasi,
+      resultpenghinaan,
+      resultancamankekerasan,
+      termAncamanKekerasan:termAncamanKekerasan,
       perhitungan_postif: positif,
       perhitungan_penghinaan: penghinaan,
       perhitungan_provokasi: provokasi,
       perhitungan_ancaman_kekerasan: ancamankekerasan,
+      weight:weight
     });
   },
 };
