@@ -77,7 +77,7 @@ module.exports = {
       );
     
       for (let i=0;i<dataSourceStopWord.length;i++){
-          dataset.push(new DatasetData(date.format(dataSource[i].tanggal,'YYYY/MM/DD'),dataSource[i].tweet,dataSourceLower[i].tweet,dataSourceRemoveMention[i].tweet,dataSourceRemoveSlang[i].tweet,dataStemming[i].tweet,dataSourceStopWord[i].tweet,dataSource[i].klasifikasi));
+          dataset.push(new DatasetData(date.format(dataSource[i].tanggal,'YYYY/MM/DD'),dataSource[i].tweet,dataSourceLower[i].tweet,dataSourceRemoveMention[i].tweet,dataSourceRemoveSlang[i].tweet,dataStemming[i].tweet,preprocessing.removeOnlyOneCharacter(dataSourceStopWord[i].tweet),dataSource[i].klasifikasi));
       }
        await service.uploadData(dataset);
         

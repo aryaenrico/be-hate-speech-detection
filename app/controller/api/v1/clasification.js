@@ -3,7 +3,7 @@ const servicePreprocessing = require("../../../service/preprocessign");
 const DataTraining = require("../../../../pojo/dataTrain");
 const preprocessing = require("../../../../utils/utils");
 const extraction_fitur = require("../../../../utils/featureExtraction");
-
+const { FlagOperation } = require("../../../../pojo/flag");
 module.exports = {
   async featureExtraction(req, res) {
     let bag_of_word = new Set();
@@ -42,147 +42,7 @@ module.exports = {
     let TN = 0;
     let FN = 0;
     let akurasi, presisi, recal;
-
-    const { dataTesting } = req.body;
-    const data = await service.getData();
-
-    await Promise.all([
-      servicePreprocessing.slangwordService(),
-      servicePreprocessing.stopwordService(),
-      servicePreprocessing.stemmingService(),
-    ]).then((data) => {
-      mapSlangWord = new Map(
-        preprocessing.createArrayOfMaps(data[0], preprocessing.Slang)
-      );
-      mapStopWord = new Map(
-        preprocessing.createArrayOfMaps(data[1], preprocessing.StopWord)
-      );
-      mapStemming = new Map(
-        preprocessing.createArrayOfMaps(data[2], preprocessing.Stemming)
-      );
-    });
-
-    const datasetObj = {
-      tweet: dataTesting,
-    };
-    datasetObj.tweet = preprocessing.removeLineBreak(
-      preprocessing.caseFolding(datasetObj.tweet)
-    );
-    datasetObj.tweet = preprocessing.operationMention(datasetObj, 2);
-    datasetObj.tweet = preprocessing.operationSlangAndStopWord1Data(
-      datasetObj.tweet,
-      1,
-      mapSlangWord
-    );
-    datasetObj.tweet = preprocessing.operationSlangAndStopWord1Data(
-      datasetObj.tweet,
-      1,
-      mapStemming
-    );
-    datasetObj.tweet = preprocessing.operationSlangAndStopWord1Data(
-      datasetObj.tweet,
-      2,
-      mapStopWord
-    );
-    //countTest = Math.floor((data.length * test) / 100);
-    for (i = 0; i < data.length; i++) {
-      dataset_All.push(
-        new DataTraining(
-          data[i].dataValues.data_stopword,
-          data[i].dataValues.klasifikasi
-        )
-      );
-      let temp_feature = data[i].dataValues.data_stopword.split(" ");
-      for (j = 0; j < temp_feature.length; j++) {
-        bag_of_word.add(temp_feature[j]);
-      }
-    }
-    for (i = 0; i < dataset_All.length; i++) {
-      if (dataset_All[i].klasifikasi == "penghinaan") {
-        datasetPenghinaan.push(dataset_All[i]);
-      } else if (dataset_All[i].klasifikasi == "provokasi") {
-        datasetProvokasi.push(dataset_All[i]);
-      } else if (dataset_All[i].klasifikasi == "ancaman kekerasan") {
-        datasetAncamanKekerasan.push(dataset_All[i]);
-      } else {
-        datasetPositif.push(dataset_All[i]);
-      }
-    }
-
-    probPenghinaan = datasetPenghinaan.length / dataset_All.length;
-    probProvokasi = datasetProvokasi.length / dataset_All.length;
-    probPositif = datasetPositif.length / dataset_All.length;
-    probAncamanKekerasan = datasetAncamanKekerasan.length / dataset_All.length;
-
-    feature = [...bag_of_word];
-
-    await Promise.all([
-      extraction_fitur.tf_df(dataset_All, feature),
-      extraction_fitur.tf_df(datasetPenghinaan, feature),
-      extraction_fitur.tf_df(datasetAncamanKekerasan, feature),
-      extraction_fitur.tf_df(datasetProvokasi, feature),
-      extraction_fitur.tf_df(datasetPositif, feature),
-    ]).then((resultTf) => {
-      tfDataset = resultTf[0];
-      tfPenghinaan = resultTf[1];
-      tfAncamanKekerasan = resultTf[2];
-      tfProvokasi = resultTf[3];
-      tfPositif = resultTf[4];
-    });
-
-    await Promise.all([
-      extraction_fitur.idf(tfDataset, feature),
-      extraction_fitur.idf(tfPenghinaan, feature),
-      extraction_fitur.idf(tfAncamanKekerasan, feature),
-      extraction_fitur.idf(tfProvokasi, feature),
-      extraction_fitur.idf(tfPositif, feature),
-    ]).then((resultTf) => {
-      idfDataset = resultTf[0];
-      idfPenghinaan = resultTf[1];
-      idfAncamanKekerasan = resultTf[2];
-      idfProvokasi = resultTf[3];
-      idfPositif = resultTf[4];
-    });
-
-    await Promise.all([
-      extraction_fitur.countWeight(tfPositif, idfPositif, feature),
-      extraction_fitur.countWeight(tfPenghinaan, idfPenghinaan, feature),
-      extraction_fitur.countWeight(tfProvokasi, idfProvokasi, feature),
-      extraction_fitur.countWeight(
-        tfAncamanKekerasan,
-        idfAncamanKekerasan,
-        feature
-      ),
-    ]).then((resultTf) => {
-      wPositif = resultTf[0];
-      wPenghinaan = resultTf[1];
-      wProvokasi = resultTf[2];
-      wAncamanKekerasan = resultTf[3];
-    });
-
-    await Promise.all([
-      extraction_fitur.countAllWeight(wPositif, feature),
-      extraction_fitur.countAllWeight(wPenghinaan, feature),
-      extraction_fitur.countAllWeight(wProvokasi, feature),
-      extraction_fitur.countAllWeight(wAncamanKekerasan, feature),
-    ]).then((resultTf) => {
-      sumPositif = resultTf[0];
-      sumPenghinaan = resultTf[1];
-      sumProvokasi = resultTf[2];
-      sumAcnamanKekerasan = resultTf[3];
-    });
-
-    for (i = 0; i < feature.length; i++) {
-      mapPositif.set(feature[i], sumPositif[i]);
-      mapPenghinaan.set(feature[i], sumPenghinaan[i]);
-      mapProvokasi.set(feature[i], sumProvokasi[i]);
-      mapAncamanKekerasan.set(feature[i], sumAcnamanKekerasan[i]);
-      weight[0] = weight[0] + sumPositif[i];
-      weight[1] = weight[1] + sumPenghinaan[i];
-      weight[2] = weight[2] + sumProvokasi[i];
-      weight[3] = weight[3] + sumAcnamanKekerasan[i];
-      weight[4] = weight[4] + idfDataset[i];
-    }
+    let word;
 
     let positif = [];
     let penghinaan = [];
@@ -194,227 +54,409 @@ module.exports = {
     let resultprovokasi = 1;
     let resultancamankekerasan = 1;
     let maxData = [];
-    let termPositif=[];
-    let termPenghinaan=[];
-    let termProvokasi=[];
-    let termAncamanKekerasan=[];
-
-    let word = datasetObj.tweet.split(" ");
-    for (j = 0; j < word.length; j++) {
-      let wtermPositif = mapPositif.get(word[j]) ?? 0;
-      termPositif.push(wtermPositif);
-      let wtermPenghinaan = mapPenghinaan.get(word[j]) ?? 0;
-      termPenghinaan.push(wtermPenghinaan);
-      let wtermProvokasi = mapProvokasi.get(word[j]) ?? 0;
-      termProvokasi.push(wtermProvokasi);
-      let wtermAncamanKekerasan = mapAncamanKekerasan.get(word[j]) ?? 0;
-      termAncamanKekerasan.push(wtermAncamanKekerasan);
-
-      let Positif = (wtermPositif + 1) / (weight[0] + weight[4]);
-      let Penghinaan = (wtermPenghinaan + 1) / (weight[1] + weight[4]);
-      let Provokasi = (wtermProvokasi + 1) / (weight[2] + weight[4]);
-      let AncamanKekerasan = (wtermAncamanKekerasan + 1) / (weight[3] + weight[4]);
-
-      resultpositif = resultpositif * Positif;
-      resultpenghinaan = resultpenghinaan * Penghinaan;
-      resultprovokasi = resultprovokasi * Provokasi;
-      resultancamankekerasan = resultancamankekerasan * AncamanKekerasan;
-
-      positif.push(Positif);
-      penghinaan.push(Penghinaan);
-      provokasi.push(Provokasi);
-      ancamankekerasan.push(AncamanKekerasan);
-    }
-    resultpositif = resultpositif * probPositif;
-    resultpenghinaan = resultpenghinaan * probPenghinaan;
-    resultprovokasi = resultprovokasi * probProvokasi;
-    resultancamankekerasan = resultancamankekerasan * probAncamanKekerasan;
-    maxData = [
-      resultpositif,
-      resultpenghinaan,
-      resultprovokasi,
-      resultancamankekerasan,
-    ];
-
-    let max = extraction_fitur.compare(maxData[0], maxData[1]) ? 0 : 1;
-    let max1 = extraction_fitur.compare(maxData[2], maxData[3]) ? 2 : 3;
-    let resultMax = extraction_fitur.compare(maxData[max], maxData[max1])
-      ? max
-      : max1;
+    let termPositif = [];
+    let termPenghinaan = [];
+    let termProvokasi = [];
+    let termAncamanKekerasan = [];
     let klasifikasi;
-    switch (resultMax) {
-      case 0:
-        klasifikasi = "non hs";
-        break;
-      case 1:
-        klasifikasi = "penghinaan";
-        break;
-      case 2:
-        klasifikasi = "provokasi";
-        break;
-      case 3:
-        klasifikasi = "ancaman kekerasan";
-        break;
+
+    const { dataTesting } = req.body;
+    const datasetObj = {
+      tweet: dataTesting,
+    };
+
+    await Promise.all([
+      servicePreprocessing.slangwordService(),
+      servicePreprocessing.stopwordService(),
+      servicePreprocessing.stemmingService(),
+    ]).then((data) => {
+      FlagOperation.mapSlangword.clear();
+      FlagOperation.mapSlangword = new Map(
+        preprocessing.createArrayOfMaps(data[0], preprocessing.Slang)
+      );
+
+      FlagOperation.mapStopword.clear();
+      FlagOperation.mapStopword = new Map(
+        preprocessing.createArrayOfMaps(data[1], preprocessing.StopWord)
+      );
+
+      FlagOperation.mapStemming.clear();
+      FlagOperation.mapStemming = new Map(
+        preprocessing.createArrayOfMaps(data[2], preprocessing.Stemming)
+      );
+    });
+
+    if (FlagOperation.cache == false) {
+      let dataset = await service.getData();
+      FlagOperation.cache = true;
+      // preprocessing until line 113
+      datasetObj.tweet = preprocessing.removeLineBreak(
+        preprocessing.caseFolding(datasetObj.tweet)
+      );
+      datasetObj.tweet = preprocessing.operationMention(datasetObj, 2);
+      datasetObj.tweet = preprocessing.operationSlangAndStopWord1Data(
+        datasetObj.tweet,
+        1,
+        FlagOperation.mapSlangword
+      );
+      datasetObj.tweet = preprocessing.operationSlangAndStopWord1Data(
+        datasetObj.tweet,
+        1,
+        FlagOperation.mapStemming
+      );
+      datasetObj.tweet = preprocessing.operationSlangAndStopWord1Data(
+        datasetObj.tweet,
+        2,
+        FlagOperation.mapStopword
+      );
+      //datasetObj.tweet =preprocessing.removeOnlyOneCharacter(datasetObj.tweet);
+      //countTest = Math.floor((data.length * test) / 100);
+
+      // get all dataset
+      for (i = 0; i < dataset.length; i++) {
+        dataset_All.push(
+          new DataTraining(
+            dataset[i].dataValues.data_stopword,
+            dataset[i].dataValues.klasifikasi
+          )
+        );
+        let temp_feature = dataset[i].dataValues.data_stopword.split(" ");
+        for (j = 0; j < temp_feature.length; j++) {
+          bag_of_word.add(temp_feature[j]);
+        }
+      }
+
+      // split dataset every class
+      for (i = 0; i < dataset_All.length; i++) {
+        if (dataset_All[i].klasifikasi == "penghinaan") {
+          datasetPenghinaan.push(dataset_All[i]);
+        } else if (dataset_All[i].klasifikasi == "provokasi") {
+          datasetProvokasi.push(dataset_All[i]);
+        } else if (dataset_All[i].klasifikasi == "ancaman kekerasan") {
+          datasetAncamanKekerasan.push(dataset_All[i]);
+        } else {
+          datasetPositif.push(dataset_All[i]);
+        }
+      }
+      
+
+      //probPenghinaan = datasetPenghinaan.length / dataset_All.length;
+      FlagOperation.probPenghinaan =
+        datasetPenghinaan.length / dataset_All.length;
+
+      //probProvokasi = datasetProvokasi.length / dataset_All.length;
+      FlagOperation.probProvokasi =
+        datasetProvokasi.length / dataset_All.length;
+
+      //probPositif = datasetPositif.length / dataset_All.length;
+      FlagOperation.probPositif = datasetPositif.length / dataset_All.length;
+
+      // probAncamanKekerasan = datasetAncamanKekerasan.length / dataset_All.length;
+      FlagOperation.probAncamanKekerasan =
+        datasetAncamanKekerasan.length / dataset_All.length;
+
+      FlagOperation.feature = [...bag_of_word];
+
+      await Promise.all([
+        extraction_fitur.tf_df(dataset_All, FlagOperation.feature),
+        extraction_fitur.tf_df(datasetPenghinaan, FlagOperation.feature),
+        extraction_fitur.tf_df(datasetAncamanKekerasan, FlagOperation.feature),
+        extraction_fitur.tf_df(datasetProvokasi, FlagOperation.feature),
+        extraction_fitur.tf_df(datasetPositif, FlagOperation.feature),
+      ]).then((resultTf) => {
+        FlagOperation.tfDataset = resultTf[0];
+
+        FlagOperation.tfPenghinaan = resultTf[1];
+
+        FlagOperation.tfAncamanKekerasan = resultTf[2];
+
+        FlagOperation.tfProvokasi = resultTf[3];
+
+        FlagOperation.tfPositif = resultTf[4];
+      });
+
+      await Promise.all([
+        extraction_fitur.idf(FlagOperation.tfDataset, FlagOperation.feature),
+        extraction_fitur.idf(FlagOperation.tfPenghinaan, FlagOperation.feature),
+        extraction_fitur.idf(
+          FlagOperation.tfAncamanKekerasan,
+          FlagOperation.feature
+        ),
+        extraction_fitur.idf(FlagOperation.tfProvokasi, FlagOperation.feature),
+        extraction_fitur.idf(FlagOperation.tfPositif, FlagOperation.feature),
+      ]).then((resultTf) => {
+        idfDataset = resultTf[0];
+        FlagOperation.idfDataset = resultTf[0];
+
+        FlagOperation.idfPenghinaan = resultTf[1];
+
+        FlagOperation.idfAncamanKekerasan = resultTf[2];
+
+        FlagOperation.idfProvokasi = resultTf[3];
+
+        FlagOperation.idfPositif = resultTf[4];
+      });
+
+      await Promise.all([
+        extraction_fitur.countWeight(
+          FlagOperation.tfPositif,
+          FlagOperation.idfPositif,
+          FlagOperation.feature
+        ),
+        extraction_fitur.countWeight(
+          FlagOperation.tfPenghinaan,
+          FlagOperation.idfPenghinaan,
+          FlagOperation.feature
+        ),
+        extraction_fitur.countWeight(
+          FlagOperation.tfProvokasi,
+          FlagOperation.idfProvokasi,
+          FlagOperation.feature
+        ),
+        extraction_fitur.countWeight(
+          FlagOperation.tfAncamanKekerasan,
+          FlagOperation.idfAncamanKekerasan,
+          FlagOperation.feature
+        ),
+      ]).then((resultTf) => {
+        FlagOperation.wPositif = resultTf[0];
+        FlagOperation.wPenghinaan = resultTf[1];
+        FlagOperation.wProvokasi = resultTf[2];
+
+        FlagOperation.wAncamanKekerasan = resultTf[3];
+      });
+
+      await Promise.all([
+        extraction_fitur.countAllWeight(
+          FlagOperation.wPositif,
+          FlagOperation.feature
+        ),
+        extraction_fitur.countAllWeight(
+          FlagOperation.wPenghinaan,
+          FlagOperation.feature
+        ),
+        extraction_fitur.countAllWeight(
+          FlagOperation.wProvokasi,
+          FlagOperation.feature
+        ),
+        extraction_fitur.countAllWeight(
+          FlagOperation.wAncamanKekerasan,
+          FlagOperation.feature
+        ),
+      ]).then((resultTf) => {
+        sumPositif = resultTf[0];
+        sumPenghinaan = resultTf[1];
+        sumProvokasi = resultTf[2];
+        sumAcnamanKekerasan = resultTf[3];
+      });
+
+      for (i = 0; i < FlagOperation.feature.length; i++) {
+        FlagOperation.mapPositif.set(FlagOperation.feature[i], sumPositif[i]);
+        FlagOperation.mapPenghinaan.set(
+          FlagOperation.feature[i],
+          sumPenghinaan[i]
+        );
+        FlagOperation.mapProvokasi.set(
+          FlagOperation.feature[i],
+          sumProvokasi[i]
+        );
+        FlagOperation.mapAncamanKekerasan.set(
+          FlagOperation.feature[i],
+          sumAcnamanKekerasan[i]
+        );
+        FlagOperation.weight[0] = FlagOperation.weight[0] + sumPositif[i];
+        FlagOperation.weight[1] = FlagOperation.weight[1] + sumPenghinaan[i];
+        FlagOperation.weight[2] = FlagOperation.weight[2] + sumProvokasi[i];
+        FlagOperation.weight[3] =
+          FlagOperation.weight[3] + sumAcnamanKekerasan[i];
+        FlagOperation.weight[4] = FlagOperation.weight[4] + idfDataset[i];
+      }
+
+      word = datasetObj.tweet.split(" ");
+      for (j = 0; j < word.length; j++) {
+        let wtermPositif = FlagOperation.mapPositif.get(word[j]) ?? 0;
+        termPositif.push(wtermPositif);
+        let wtermPenghinaan = FlagOperation.mapPenghinaan.get(word[j]) ?? 0;
+        termPenghinaan.push(wtermPenghinaan);
+        let wtermProvokasi = FlagOperation.mapProvokasi.get(word[j]) ?? 0;
+        termProvokasi.push(wtermProvokasi);
+        let wtermAncamanKekerasan =
+          FlagOperation.mapAncamanKekerasan.get(word[j]) ?? 0;
+        termAncamanKekerasan.push(wtermAncamanKekerasan);
+
+        let Positif =
+          (wtermPositif + 1) /
+          (FlagOperation.weight[0] + FlagOperation.weight[4]);
+        let Penghinaan =
+          (wtermPenghinaan + 1) /
+          (FlagOperation.weight[1] + FlagOperation.weight[4]);
+        let Provokasi =
+          (wtermProvokasi + 1) /
+          (FlagOperation.weight[2] + FlagOperation.weight[4]);
+        let AncamanKekerasan =
+          (wtermAncamanKekerasan + 1) /
+          (FlagOperation.weight[3] + FlagOperation.weight[4]);
+
+        resultpositif = resultpositif * Positif;
+        resultpenghinaan = resultpenghinaan * Penghinaan;
+        resultprovokasi = resultprovokasi * Provokasi;
+        resultancamankekerasan = resultancamankekerasan * AncamanKekerasan;
+
+        positif.push(Positif);
+        penghinaan.push(Penghinaan);
+        provokasi.push(Provokasi);
+        ancamankekerasan.push(AncamanKekerasan);
+      }
+      resultpositif = resultpositif * FlagOperation.probPositif;
+      resultpenghinaan = resultpenghinaan * FlagOperation.probPenghinaan;
+      resultprovokasi = resultprovokasi * FlagOperation.probProvokasi;
+      resultancamankekerasan =
+        resultancamankekerasan * FlagOperation.probAncamanKekerasan;
+
+      console.info(resultpositif);
+
+      maxData = [
+        resultpositif,
+        resultpenghinaan,
+        resultprovokasi,
+        resultancamankekerasan,
+      ];
+
+      let max = extraction_fitur.compare(maxData[0], maxData[1]) ? 0 : 1;
+      let max1 = extraction_fitur.compare(maxData[2], maxData[3]) ? 2 : 3;
+      let resultMax = extraction_fitur.compare(maxData[max], maxData[max1])
+        ? max
+        : max1;
+
+      switch (resultMax) {
+        case 0:
+          klasifikasi = "non hs";
+          break;
+        case 1:
+          klasifikasi = "penghinaan";
+          break;
+        case 2:
+          klasifikasi = "provokasi";
+          break;
+        case 3:
+          klasifikasi = "ancaman kekerasan";
+          break;
+      }
+    } else {
+      resultpositif = 1;
+      resultprovokasi = 1;
+      resultancamankekerasan = 1;
+      resultpenghinaan = 1;
+      console.info(FlagOperation.mapSlangword.get('7an'));
+      datasetObj.tweet = preprocessing.operationMention(datasetObj, 2);
+      datasetObj.tweet = preprocessing.operationSlangAndStopWord1Data(
+        datasetObj.tweet,
+        1,
+        FlagOperation.mapSlangword
+      );
+      datasetObj.tweet = preprocessing.operationSlangAndStopWord1Data(
+        datasetObj.tweet,
+        1,
+        FlagOperation.mapStemming
+      );
+      datasetObj.tweet = preprocessing.operationSlangAndStopWord1Data(
+        datasetObj.tweet,
+        2,
+        FlagOperation.mapStopword
+      );
+      word = datasetObj.tweet.split(" ");
+      for (j = 0; j < word.length; j++) {
+        let wtermPositif = FlagOperation.mapPositif.get(word[j]) ?? 0;
+        termPositif.push(wtermPositif);
+        let wtermPenghinaan = FlagOperation.mapPenghinaan.get(word[j]) ?? 0;
+        termPenghinaan.push(wtermPenghinaan);
+        let wtermProvokasi = FlagOperation.mapProvokasi.get(word[j]) ?? 0;
+        termProvokasi.push(wtermProvokasi);
+        let wtermAncamanKekerasan =
+          FlagOperation.mapAncamanKekerasan.get(word[j]) ?? 0;
+        termAncamanKekerasan.push(wtermAncamanKekerasan);
+
+        let Positif =
+          (wtermPositif + 1) /
+          (FlagOperation.weight[0] + FlagOperation.weight[4]);
+        let Penghinaan =
+          (wtermPenghinaan + 1) /
+          (FlagOperation.weight[1] + FlagOperation.weight[4]);
+        let Provokasi =
+          (wtermProvokasi + 1) /
+          (FlagOperation.weight[2] + FlagOperation.weight[4]);
+        let AncamanKekerasan =
+          (wtermAncamanKekerasan + 1) /
+          (FlagOperation.weight[3] + FlagOperation.weight[4]);
+
+        resultpositif = resultpositif * Positif;
+        resultpenghinaan = resultpenghinaan * Penghinaan;
+        resultprovokasi = resultprovokasi * Provokasi;
+        resultancamankekerasan = resultancamankekerasan * AncamanKekerasan;
+
+        positif.push(Positif);
+        penghinaan.push(Penghinaan);
+        provokasi.push(Provokasi);
+        ancamankekerasan.push(AncamanKekerasan);
+      }
+      resultpositif = resultpositif * FlagOperation.probPositif;
+      resultpenghinaan = resultpenghinaan * FlagOperation.probPenghinaan;
+      resultprovokasi = resultprovokasi * FlagOperation.probProvokasi;
+      resultancamankekerasan =
+        resultancamankekerasan * FlagOperation.probAncamanKekerasan;
+      maxData = [
+        resultpositif,
+        resultpenghinaan,
+        resultprovokasi,
+        resultancamankekerasan,
+      ];
+
+      let max = extraction_fitur.compare(maxData[0], maxData[1]) ? 0 : 1;
+      let max1 = extraction_fitur.compare(maxData[2], maxData[3]) ? 2 : 3;
+      let resultMax = extraction_fitur.compare(maxData[max], maxData[max1])
+        ? max
+        : max1;
+
+      switch (resultMax) {
+        case 0:
+          klasifikasi = "non hs";
+          break;
+        case 1:
+          klasifikasi = "penghinaan";
+          break;
+        case 2:
+          klasifikasi = "provokasi";
+          break;
+        case 3:
+          klasifikasi = "ancaman kekerasan";
+          break;
+      }
+      console.info(FlagOperation.probPositif);
     }
-
-    // resultNegatif = resultNegatif * probHs.toFixed(5);
-    // resultpositif > resultNegatif ? result.push("nhs") : result.push("hs");
-    // calculationNhs.push(nhs);
-    // calculationhs.push(hs);
-
-    // sampai sudah semua
-    // while (random_dataset.size < countTest) {
-    //   random_dataset.add(extraction_fitur.getRandomNumber(data.length - 1));
-    // }
-
-    // arr_random_dataset =extraction_fitur.mergeSort(arr_random_dataset=[...random_dataset]);
-    // console.info(arr_random_dataset);
-
-    // for (i = 0; i < data.length; i++) {
-    //   // improve time complexity
-    //   if (extraction_fitur.Search(arr_random_dataset,0,arr_random_dataset.length-1,i)) {
-    //     dataTest.push(
-    //       new DataTraining(
-    //         data[i].dataValues.data_stopword,
-    //         data[i].dataValues.klasifikasi
-    //       )
-    //     );
-    //   } else {
-    //     dataset_All.push(
-    //       new DataTraining(
-    //         data[i].dataValues.data_stopword,
-    //         data[i].dataValues.klasifikasi
-    //       )
-    //     );
-    //     let temp_feature = data[i].dataValues.data_stopword.split(" ");
-    //     for (j = 0; j < temp_feature.length; j++) {
-    //       bag_of_word.add(temp_feature[j]);
-    //     }
-    //   }
-    // }
-
-    // for (i = 0; i < dataset_All.length; i++) {
-    //   dataset_All[i].klasifikasi == "hs"
-    //     ? datasetNegatif.push(dataset_All[i])
-    //     : datasetPositif.push(dataset_All[i]);
-    // }
-
-    // probHs = datasetNegatif.length / dataset_All.length;
-    // probNhs = datasetPositif.length / dataset_All.length;
-
-    // await Promise.all([
-    //   extraction_fitur.tf_df(datasetPositif, feature),
-    //   extraction_fitur.tf_df(datasetNegatif, feature),
-    //   extraction_fitur.tf_df(dataset_All, feature),
-    // ]).then((resultTf) => {
-    //   tfNhs = resultTf[0];
-    //   tfHs = resultTf[1];
-    //   tfFull = resultTf[2];
-    // });
-
-    // await Promise.all([
-    //   extraction_fitur.idf(tfNhs, feature),
-    //   extraction_fitur.idf(tfHs, feature),
-    //   extraction_fitur.idf(tfFull, feature),
-    // ]).then((resultTf) => {
-    //   idfHs = resultTf[1];
-    //   idfNhs = resultTf[0];
-    //   idfFull = resultTf[2];
-    // });
-
-    // await Promise.all([
-    //   extraction_fitur.countWeight(tfNhs, idfNhs, feature),
-    //   extraction_fitur.countWeight(tfHs, idfHs, feature),
-    // ]).then((resultTf) => {
-    //   wNhs = resultTf[0];
-    //   wHs = resultTf[1];
-    // });
-
-    // await Promise.all([
-    //   extraction_fitur.countAllWeight(wNhs, feature),
-    //   extraction_fitur.countAllWeight(wHs, feature),
-    // ]).then((resultTf) => {
-    //   sumNhs = resultTf[0];
-    //   sumHs = resultTf[1];
-    // });
-
-    // // create feature bag of word for each class respective with their value
-    // for (i = 0; i < feature.length; i++) {
-    //   mapNonhs.set(feature[i], sumNhs[i]);
-    //   mapHs.set(feature[i], sumHs[i]);
-    //   weight[0] = weight[0] + idfFull[i];
-    //   weight[1] = weight[1] + sumNhs[i];
-    //   weight[2] = weight[2] + sumHs[i];
-    // }
-    // const Konstanta =1;
-    // // klasification process
-    // for (i = 0; i < dataTest.length; i++) {
-    //   let word = dataTest[i].tweet.split(" ");
-    //   let hs = [];
-    //   let nhs = [];
-    //   let resultpositif = 1;
-    //   let resultNegatif = 1;
-    //   for (j = 0; j < word.length; j++) {
-    //     let wtermPositrif = mapNonhs.get(word[j]) ?? 0;
-    //     let wtermnegatif = mapHs.get(word[j]) ?? 0;
-    //     let Postif = (wtermPositrif + 1) / (weight[1] + weight[0]);
-    //     let Negatif = (wtermnegatif + 1) / (weight[2] + weight[0]);
-    //     resultpositif = resultpositif * Postif.toFixed(5);
-    //     resultNegatif = resultNegatif * Negatif.toFixed(5);
-    //     nhs.push(Postif.toFixed(5));
-    //     hs.push(Negatif.toFixed(5));
-    //   }
-    //   resultpositif = resultpositif * probNhs.toFixed(5);
-    //   resultNegatif = resultNegatif * probHs.toFixed(5);
-    //   resultpositif > resultNegatif ? result.push("nhs") : result.push("hs");
-    //   calculationNhs.push(nhs);
-    //   calculationhs.push(hs);
-    // }
-
-    // // confusion matrix process
-    // for (i=0;i<dataTest.length;i++){
-    //  if (result[i] === "nhs"){
-    //   if (result[i] === dataTest[i].klasifikasi){
-    //     TP++;
-    //   }else{
-    //     FP++;
-    //   }
-    //  }else{
-    //   if (result[i] === "hs"){
-    //     if (result[i] === dataTest[i].klasifikasi){
-    //       TN++;
-    //     }else{
-    //       FN++;
-    //     }
-    //  }
-    // }
-    // }
-    // akurasi =(TP+TN) /(TP+TN+FP+FN );
-    // presisi =(TP)/(TP+FP);
-    // recal=(TP)/(TP+FN);
-
     res.status(200).json({
       message: "berhasil",
+      status: FlagOperation.cache,
+      total: FlagOperation.feature.length,
       dataclean: datasetObj.tweet,
-      datacleanArr:word,
-      probPositif:probPositif,
-      probPenghinaan:probPenghinaan,
-      probProvokasi:probProvokasi,
-      probAncamanKekerasan:probAncamanKekerasan,
+      datacleanArr: word,
+      probPositif: FlagOperation.probPositif,
+      probPenghinaan: FlagOperation.probPenghinaan,
+      probProvokasi: FlagOperation.probProvokasi,
+      probAncamanKekerasan: FlagOperation.probAncamanKekerasan,
       klasifikasi: klasifikasi,
-      termPositif:termPositif,
-      termProvokasi:termProvokasi,
-      termPenghinaan:termPenghinaan,
+      termPositif: termPositif,
+      termProvokasi: termProvokasi,
+      termPenghinaan: termPenghinaan,
       resultpositif,
       resultprovokasi,
       resultpenghinaan,
       resultancamankekerasan,
-      termAncamanKekerasan:termAncamanKekerasan,
+      termAncamanKekerasan: termAncamanKekerasan,
       perhitungan_postif: positif,
       perhitungan_penghinaan: penghinaan,
       perhitungan_provokasi: provokasi,
       perhitungan_ancaman_kekerasan: ancamankekerasan,
-      weight:weight
+      weight: FlagOperation.weight,
     });
   },
 };
