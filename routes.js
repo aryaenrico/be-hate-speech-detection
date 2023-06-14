@@ -11,6 +11,7 @@ const upload =uploadFile.single('file');
 
 apiRouter.post("/api/v1/file",[cors(),controller.api.v1.uploadController.uploadFile],controller.api.v1.uploadController.Upload);
 apiRouter.post("/api/v1/testing",cors(),controller.api.v1.clasificationController.featureExtraction);
+apiRouter.post("/api/v1/testings",[cors(),controller.api.v1.uploadController.uploadFile],controller.api.v1.clasificationControllerExcel.Upload);
 apiRouter.post("/api/v1/datasets",cors(),controller.api.v1.dataset.addDataset);
 appRouter.use(apiRouter);
 server.use(express.json());

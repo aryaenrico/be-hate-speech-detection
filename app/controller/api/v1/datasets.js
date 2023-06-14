@@ -4,6 +4,9 @@ const date = require("date-and-time");
 const service = require("../../../service/preprocessign");
 const serviceDataset = require("../../../service/dataset");
 const { Dataset } = require("../../../../dataser");
+const Klasifikasi = require('../../../../utils/clasification');
+
+
 
 module.exports = {
   async addDataset(req, res) {
@@ -68,6 +71,8 @@ module.exports = {
         );
       }
       await serviceDataset.addDataset(result);
+      Klasifikasi.offFlag();
+     
 
       res.status(200).json({
         data: "sukses",
