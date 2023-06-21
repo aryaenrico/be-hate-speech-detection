@@ -9,17 +9,15 @@ module.exports = {
   async featureExtraction(req, res) {
     let bag_of_word = new Set();
     let dataset_All = [];
-    let datasetAncamanKekerasan = [];
     let datasetProvokasi = [];
     let datasetPenghinaan = [];
     let datasetPositif = [];
     let resultMax;
-    let sumPositif, sumPenghinaan, sumProvokasi, sumAcnamanKekerasan;
+    let sumPositif, sumPenghinaan, sumProvokasi;
     let word;
 
     let positif = [];
     let penghinaan = [];
-    let ancamankekerasan = [];
     let provokasi = [];
 
     let resultpositif = 1;
@@ -30,7 +28,7 @@ module.exports = {
     let termPositif = [];
     let termPenghinaan = [];
     let termProvokasi = [];
-    let termAncamanKekerasan = [];
+    
     let klasifikasi;
 
     const { dataTesting } = req.body;
@@ -59,6 +57,7 @@ module.exports = {
       );
     });
 
+    // poccess preprocessing
     datasetObj.tweet = preprocessing.removeLineBreak(
       preprocessing.caseFolding(datasetObj.tweet)
     );
@@ -94,9 +93,7 @@ module.exports = {
           datasetPenghinaan.push(dataset_All[i]);
         } else if (dataset_All[i].klasifikasi == "provokasi") {
           datasetProvokasi.push(dataset_All[i]);
-        } else if (dataset_All[i].klasifikasi == "ancaman kekerasan") {
-          datasetAncamanKekerasan.push(dataset_All[i]);
-        } else {
+        }  else {
           datasetPositif.push(dataset_All[i]);
         }
       }
@@ -109,13 +106,10 @@ module.exports = {
 
       FlagOperation.probPositif = datasetPositif.length / dataset_All.length;
 
-      FlagOperation.probAncamanKekerasan =
-        datasetAncamanKekerasan.length / dataset_All.length;
 
       await Promise.all([
         extraction_fitur.tf_df(dataset_All, FlagOperation.feature),
         extraction_fitur.tf_df(datasetPenghinaan, FlagOperation.feature),
-        extraction_fitur.tf_df(datasetAncamanKekerasan, FlagOperation.feature),
         extraction_fitur.tf_df(datasetProvokasi, FlagOperation.feature),
         extraction_fitur.tf_df(datasetPositif, FlagOperation.feature),
       ]).then((resultTf) => {
@@ -123,20 +117,14 @@ module.exports = {
 
         FlagOperation.tfPenghinaan = resultTf[1];
 
-        FlagOperation.tfAncamanKekerasan = resultTf[2];
+        FlagOperation.tfProvokasi = resultTf[2];
 
-        FlagOperation.tfProvokasi = resultTf[3];
-
-        FlagOperation.tfPositif = resultTf[4];
+        FlagOperation.tfPositif = resultTf[3];
       });
 
       await Promise.all([
         extraction_fitur.idf(FlagOperation.tfDataset, FlagOperation.feature),
         extraction_fitur.idf(FlagOperation.tfPenghinaan, FlagOperation.feature),
-        extraction_fitur.idf(
-          FlagOperation.tfAncamanKekerasan,
-          FlagOperation.feature
-        ),
         extraction_fitur.idf(FlagOperation.tfProvokasi, FlagOperation.feature),
         extraction_fitur.idf(FlagOperation.tfPositif, FlagOperation.feature),
       ]).then((resultTf) => {
@@ -144,11 +132,9 @@ module.exports = {
 
         FlagOperation.idfPenghinaan = resultTf[1];
 
-        FlagOperation.idfAncamanKekerasan = resultTf[2];
+        FlagOperation.idfProvokasi = resultTf[2];
 
-        FlagOperation.idfProvokasi = resultTf[3];
-
-        FlagOperation.idfPositif = resultTf[4];
+        FlagOperation.idfPositif = resultTf[3];
       });
 
       await Promise.all([
@@ -167,16 +153,11 @@ module.exports = {
           FlagOperation.idfProvokasi,
           FlagOperation.feature
         ),
-        extraction_fitur.countWeight(
-          FlagOperation.tfAncamanKekerasan,
-          FlagOperation.idfAncamanKekerasan,
-          FlagOperation.feature
-        ),
       ]).then((resultTf) => {
         FlagOperation.wPositif = resultTf[0];
         FlagOperation.wPenghinaan = resultTf[1];
         FlagOperation.wProvokasi = resultTf[2];
-        FlagOperation.wAncamanKekerasan = resultTf[3];
+
       });
 
       await Promise.all([
@@ -192,15 +173,11 @@ module.exports = {
           FlagOperation.wProvokasi,
           FlagOperation.feature
         ),
-        extraction_fitur.countAllWeight(
-          FlagOperation.wAncamanKekerasan,
-          FlagOperation.feature
-        ),
+       
       ]).then((resultTf) => {
         sumPositif = resultTf[0];
         sumPenghinaan = resultTf[1];
         sumProvokasi = resultTf[2];
-        sumAcnamanKekerasan = resultTf[3];
       });
 
       for (i = 0; i < FlagOperation.feature.length; i++) {
@@ -213,16 +190,11 @@ module.exports = {
           FlagOperation.feature[i],
           sumProvokasi[i]
         );
-        FlagOperation.mapAncamanKekerasan.set(
-          FlagOperation.feature[i],
-          sumAcnamanKekerasan[i]
-        );
+       
         FlagOperation.weight[0] = FlagOperation.weight[0] + sumPositif[i];
         FlagOperation.weight[1] = FlagOperation.weight[1] + sumPenghinaan[i];
         FlagOperation.weight[2] = FlagOperation.weight[2] + sumProvokasi[i];
-        FlagOperation.weight[3] =
-          FlagOperation.weight[3] + sumAcnamanKekerasan[i];
-        FlagOperation.weight[4] = FlagOperation.weight[4] + FlagOperation.idfDataset[i];
+        FlagOperation.weight[3] = FlagOperation.weight[3] + FlagOperation.idfDataset[i];
       }
     }
 
@@ -234,51 +206,42 @@ module.exports = {
       termPenghinaan.push(wtermPenghinaan);
       let wtermProvokasi = FlagOperation.mapProvokasi.get(word[j]) ?? 0;
       termProvokasi.push(wtermProvokasi);
-      let wtermAncamanKekerasan =
-        FlagOperation.mapAncamanKekerasan.get(word[j]) ?? 0;
-      termAncamanKekerasan.push(wtermAncamanKekerasan);
+      
 
       let Positif =
         (wtermPositif + 1) /
-        (FlagOperation.weight[0] + FlagOperation.weight[4]);
+        (FlagOperation.weight[0] + FlagOperation.weight[3]);
       let Penghinaan =
         (wtermPenghinaan + 1) /
-        (FlagOperation.weight[1] + FlagOperation.weight[4]);
+        (FlagOperation.weight[1] + FlagOperation.weight[3]);
       let Provokasi =
         (wtermProvokasi + 1) /
-        (FlagOperation.weight[2] + FlagOperation.weight[4]);
-      let AncamanKekerasan =
-        (wtermAncamanKekerasan + 1) /
-        (FlagOperation.weight[3] + FlagOperation.weight[4]);
+        (FlagOperation.weight[2] + FlagOperation.weight[3]);
+      
 
       resultpositif = resultpositif * Positif;
       resultpenghinaan = resultpenghinaan * Penghinaan;
       resultprovokasi = resultprovokasi * Provokasi;
-      resultancamankekerasan = resultancamankekerasan * AncamanKekerasan;
+      
 
       positif.push(Positif);
       penghinaan.push(Penghinaan);
       provokasi.push(Provokasi);
-      ancamankekerasan.push(AncamanKekerasan);
+     
     }
     resultpositif = resultpositif * FlagOperation.probPositif;
     resultpenghinaan = resultpenghinaan * FlagOperation.probPenghinaan;
     resultprovokasi = resultprovokasi * FlagOperation.probProvokasi;
-    resultancamankekerasan =
-      resultancamankekerasan * FlagOperation.probAncamanKekerasan;
+  
     maxData = [
       resultpositif,
       resultpenghinaan,
       resultprovokasi,
-      resultancamankekerasan,
     ];
 
     let max = extraction_fitur.compare(maxData[0], maxData[1]) ? 0 : 1;
-    let max1 = extraction_fitur.compare(maxData[2], maxData[3]) ? 2 : 3;
-    resultMax = extraction_fitur.compare(maxData[max], maxData[max1])
-      ? max
-      : max1;
-
+    resultMax = extraction_fitur.compare(maxData[2], maxData[max]) ? 2 : max;
+   
     switch (resultMax) {
       case 0:
         klasifikasi = "non hs";
@@ -289,21 +252,16 @@ module.exports = {
       case 2:
         klasifikasi = "provokasi";
         break;
-      case 3:
-        klasifikasi = "ancaman kekerasan";
-        break;
     }
-    console.info(FlagOperation.mapPositif.size);
     res.status(200).json({
       message: "berhasil",
       status: FlagOperation.cache,
-      total: FlagOperation.feature.length,
+      total: FlagOperation.feature.length, 
       dataclean: datasetObj.tweet,
       datacleanArr: word,
       probPositif: FlagOperation.probPositif,
       probPenghinaan: FlagOperation.probPenghinaan,
       probProvokasi: FlagOperation.probProvokasi,
-      probAncamanKekerasan: FlagOperation.probAncamanKekerasan,
       klasifikasi: klasifikasi,
       termPositif: termPositif,
       termProvokasi: termProvokasi,
@@ -312,11 +270,9 @@ module.exports = {
       resultprovokasi,
       resultpenghinaan,
       resultancamankekerasan,
-      termAncamanKekerasan: termAncamanKekerasan,
       perhitungan_postif: positif,
       perhitungan_penghinaan: penghinaan,
       perhitungan_provokasi: provokasi,
-      perhitungan_ancaman_kekerasan: ancamankekerasan,
       weight: FlagOperation.weight,
     });
   },

@@ -321,7 +321,7 @@ module.exports = {
         status: "sukses",
         message: "file berhasil di upload",
         dataAsli: dataSourceStopWord,
-        perhitugan: result_perhitungan,
+        perhitungan: result_perhitungan,
         klasifikasi: result_klasifikasi,
       });
     } catch (error) {

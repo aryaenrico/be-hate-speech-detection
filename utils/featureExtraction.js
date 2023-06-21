@@ -14,7 +14,7 @@ async function tf_df(dataset, feature, operation = 1) {
         }
       }
       operation == 1
-        ? num.push((score / doc.length).toFixed(7))
+        ? num.push((score / doc.length))
         : num.push(score);
     }
     result.push(num);
