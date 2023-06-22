@@ -5,6 +5,7 @@ const service = require("../../../service/preprocessign");
 const serviceDataset = require("../../../service/dataset");
 const { Dataset } = require("../../../../dataser");
 const Klasifikasi = require('../../../../utils/clasification');
+const { FlagOperation } = require("../../../../pojo/flag");
 
 
 
@@ -24,39 +25,23 @@ module.exports = {
       tempDataset.push(
         new Dataset(date.format(new Date(), "YYYY/MM/DD"), tweet, klasifikasi)
       );
-       await Promise.all([
-        service.slangwordService(),
-        service.stopwordService(),
-        service.stemmingService(),
-      ]).then((data) => {
-        mapSlangWord = new Map(
-          preprocessing.createArrayOfMaps(data[0], preprocessing.Slang)
-        );
-        mapStopWord = new Map(
-          preprocessing.createArrayOfMaps(data[1], preprocessing.StopWord)
-        );
-        mapStemming = new Map(
-          preprocessing.createArrayOfMaps(data[2], preprocessing.Stemming)
-        );
-      });
-     
-
+      await Klasifikasi.mappingHash();
       datalower = preprocessing.mappingArray(tempDataset,preprocessing.operationLower);
       dataremovemention = preprocessing.mappingArray(datalower,preprocessing.operationMention);
       dataslang = await preprocessing.operationSlangAndStopWord(
         dataremovemention,
         1,
-        mapSlangWord
+        FlagOperation.mapSlangword
       );
       datastemming = await preprocessing.operationSlangAndStopWord(
         dataslang,
         1,
-        mapStemming
+        FlagOperation.mapStemming
       );
       datastop = await preprocessing.operationSlangAndStopWord(
         datastemming,
         2,
-        mapStopWord
+        FlagOperation.mapStopword
       );
       for (i = 0; i < tempDataset.length; i++) {
         result = new DatasetData(
@@ -70,10 +55,8 @@ module.exports = {
           klasifikasi
         );
       }
+      Klasifikasi.offFlag()
       await serviceDataset.addDataset(result);
-      Klasifikasi.offFlag();
-     
-
       res.status(200).json({
         data: "sukses",
         dataPreprocessing:result

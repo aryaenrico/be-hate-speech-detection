@@ -7,7 +7,6 @@ const Klasifikasi = require('../../../../utils/clasification');
 const { FlagOperation } = require("../../../../pojo/flag");
 module.exports = {
   async featureExtraction(req, res) {
-    let bag_of_word = new Set();
     let dataset_All = [];
     let datasetProvokasi = [];
     let datasetPenghinaan = [];
@@ -30,32 +29,12 @@ module.exports = {
     let termProvokasi = [];
     
     let klasifikasi;
-
-    const { dataTesting } = req.body;
+    try{
+      const { dataTesting } = req.body;
     const datasetObj = {
       tweet: dataTesting,
     };
-
-    await Promise.all([
-      servicePreprocessing.slangwordService(),
-      servicePreprocessing.stopwordService(),
-      servicePreprocessing.stemmingService(),
-    ]).then((data) => {
-      FlagOperation.mapSlangword.clear();
-      FlagOperation.mapSlangword = new Map(
-        preprocessing.createArrayOfMaps(data[0], preprocessing.Slang)
-      );
-
-      FlagOperation.mapStopword.clear();
-      FlagOperation.mapStopword = new Map(
-        preprocessing.createArrayOfMaps(data[1], preprocessing.StopWord)
-      );
-
-      FlagOperation.mapStemming.clear();
-      FlagOperation.mapStemming = new Map(
-        preprocessing.createArrayOfMaps(data[2], preprocessing.Stemming)
-      );
-    });
+   await Klasifikasi.mappingHash();
 
     // poccess preprocessing
     datasetObj.tweet = preprocessing.removeLineBreak(
@@ -106,98 +85,15 @@ module.exports = {
 
       FlagOperation.probPositif = datasetPositif.length / dataset_All.length;
 
-
-      await Promise.all([
-        extraction_fitur.tf_df(dataset_All, FlagOperation.feature),
-        extraction_fitur.tf_df(datasetPenghinaan, FlagOperation.feature),
-        extraction_fitur.tf_df(datasetProvokasi, FlagOperation.feature),
-        extraction_fitur.tf_df(datasetPositif, FlagOperation.feature),
-      ]).then((resultTf) => {
-        FlagOperation.tfDataset = resultTf[0];
-
-        FlagOperation.tfPenghinaan = resultTf[1];
-
-        FlagOperation.tfProvokasi = resultTf[2];
-
-        FlagOperation.tfPositif = resultTf[3];
-      });
-
-      await Promise.all([
-        extraction_fitur.idf(FlagOperation.tfDataset, FlagOperation.feature),
-        extraction_fitur.idf(FlagOperation.tfPenghinaan, FlagOperation.feature),
-        extraction_fitur.idf(FlagOperation.tfProvokasi, FlagOperation.feature),
-        extraction_fitur.idf(FlagOperation.tfPositif, FlagOperation.feature),
-      ]).then((resultTf) => {
-        FlagOperation.idfDataset = resultTf[0];
-
-        FlagOperation.idfPenghinaan = resultTf[1];
-
-        FlagOperation.idfProvokasi = resultTf[2];
-
-        FlagOperation.idfPositif = resultTf[3];
-      });
-
-      await Promise.all([
-        extraction_fitur.countWeight(
-          FlagOperation.tfPositif,
-          FlagOperation.idfPositif,
-          FlagOperation.feature
-        ),
-        extraction_fitur.countWeight(
-          FlagOperation.tfPenghinaan,
-          FlagOperation.idfPenghinaan,
-          FlagOperation.feature
-        ),
-        extraction_fitur.countWeight(
-          FlagOperation.tfProvokasi,
-          FlagOperation.idfProvokasi,
-          FlagOperation.feature
-        ),
-      ]).then((resultTf) => {
-        FlagOperation.wPositif = resultTf[0];
-        FlagOperation.wPenghinaan = resultTf[1];
-        FlagOperation.wProvokasi = resultTf[2];
-
-      });
-
-      await Promise.all([
-        extraction_fitur.countAllWeight(
-          FlagOperation.wPositif,
-          FlagOperation.feature
-        ),
-        extraction_fitur.countAllWeight(
-          FlagOperation.wPenghinaan,
-          FlagOperation.feature
-        ),
-        extraction_fitur.countAllWeight(
-          FlagOperation.wProvokasi,
-          FlagOperation.feature
-        ),
-       
-      ]).then((resultTf) => {
-        sumPositif = resultTf[0];
-        sumPenghinaan = resultTf[1];
-        sumProvokasi = resultTf[2];
-      });
-
-      for (i = 0; i < FlagOperation.feature.length; i++) {
-        FlagOperation.mapPositif.set(FlagOperation.feature[i], sumPositif[i]);
-        FlagOperation.mapPenghinaan.set(
-          FlagOperation.feature[i],
-          sumPenghinaan[i]
-        );
-        FlagOperation.mapProvokasi.set(
-          FlagOperation.feature[i],
-          sumProvokasi[i]
-        );
-       
-        FlagOperation.weight[0] = FlagOperation.weight[0] + sumPositif[i];
-        FlagOperation.weight[1] = FlagOperation.weight[1] + sumPenghinaan[i];
-        FlagOperation.weight[2] = FlagOperation.weight[2] + sumProvokasi[i];
-        FlagOperation.weight[3] = FlagOperation.weight[3] + FlagOperation.idfDataset[i];
-      }
+      await Klasifikasi.GetTF(dataset_All,datasetPenghinaan,datasetProvokasi,datasetPositif)
+      await Klasifikasi.GetIdf();
+      await Klasifikasi.GetTfIdf();
+      sumPositif = await Klasifikasi.GetSumTFIdf(FlagOperation.wPositif,FlagOperation.feature);
+      sumPenghinaan = await Klasifikasi.GetSumTFIdf(FlagOperation.wPenghinaan,FlagOperation.feature);
+      sumProvokasi = await Klasifikasi.GetSumTFIdf(FlagOperation.wProvokasi,FlagOperation.feature);
+      await Klasifikasi.MappingmapKata(sumPositif,sumPenghinaan,sumProvokasi);
+     
     }
-
     word = datasetObj.tweet.split(" ");
     for (j = 0; j < word.length; j++) {
       let wtermPositif = FlagOperation.mapPositif.get(word[j]) ?? 0;
@@ -275,5 +171,12 @@ module.exports = {
       perhitungan_provokasi: provokasi,
       weight: FlagOperation.weight,
     });
+    }catch(err){
+      res.status(500).json({
+        status:"fail",
+        message:err.message
+      })
+    }
+    
   },
 };

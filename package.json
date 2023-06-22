@@ -19,7 +19,9 @@
     "mysql2": "^3.3.0",
     "read-excel-file": "^5.6.1",
     "sastrawijs": "^1.0.4",
-    "sequelize": "^6.31.1"
+    "sequelize": "^6.31.1",
+    "twit": "^2.2.11",
+    "twitter": "^1.7.1"
   },
   "devDependencies": {
     "nodemon": "^2.0.22",

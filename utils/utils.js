@@ -40,7 +40,7 @@ function removeWordNya(text){
 }
 
 function removeLineBreak(text) {
-  return text.replace(/(\r\n|\n|\r)/gm, "");
+  return text.replace(/(\r\n|\n|\r)/gm, " ");
 }
 
 function removeOnlyOneCharacter(text){

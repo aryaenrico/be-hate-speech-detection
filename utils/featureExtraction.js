@@ -1,4 +1,4 @@
-async function tf_df(dataset, feature, operation = 1) {
+async function tf_df(dataset, feature) {
   let result = [];
   for (i = 0; i < dataset.length; i++) {
     let doc = dataset[i].tweet.split(" ");
@@ -8,14 +8,9 @@ async function tf_df(dataset, feature, operation = 1) {
       for (k = 0; k < doc.length; k++) {
         if (doc[k] == feature[j]) {
           score++;
-          if (operation == 2) {
-            break;
-          }
         }
       }
-      operation == 1
-        ? num.push((score / doc.length))
-        : num.push(score);
+         num.push((score / doc.length));
     }
     result.push(num);
   }
