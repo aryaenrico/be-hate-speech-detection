@@ -1,13 +1,17 @@
-const preprocessing = require("../../../../utils/utils");
-const { FlagOperation } = require("../../../../pojo/flag");
-const serviceDataset = require("../../../service/clasification");
+const readExcel = require("read-excel-file/node");
+const path = require("path");
 const { Dataset } = require("../../../../dataser");
+const preprocessing = require("../../../../utils/utils");
 const service = require("../../../service/preprocessign");
+const serviceDataset = require("../../../service/clasification");
+const DatasetData = require("../../../../pojo/dataser");
+const date = require("date-and-time");
+const { FlagOperation } = require("../../../../pojo/flag");
 const extraction_fitur = require("../../../../utils/featureExtraction");
 const Klasifikasi = require("../../../../utils/clasification");
 
-module.exports = {
-  async GetTweetFromTwiter(req, res) {
+module.export = {
+  async Upload(req, res) {
     let dataSource = [];
     let dataSourceLower = [];
     let dataSourceRemoveMention = [];
@@ -24,29 +28,17 @@ module.exports = {
     let resultprovokasi;
     let result_klasifikasi = [];
     let result_perhitungan = [];
+    let klasifikasi_actual=[];
+    const dir = path.join(
+      __dirname,
+      `../../../../datasetData/${res.locals.fileName}`
+    );
+
     try {
-      await Klasifikasi.mappingHash();
-      const { keyword = "pssi" } = req.body;
-      const Twit = require("twit");
-      const T = new Twit({
-        consumer_key: "20nzU467ZwsY4QbnW6mFeIkN4",
-        consumer_secret: "ODxWfkH8yf96WnqtJcjjP0u5bN7u5e3uKl3ESrF4r2dMuiEXpp",
-        access_token: "108170270-c1fcsu1tbCurSgAwkDCj7aGqqshfO3mGZuPK08yg",
-        access_token_secret: "ZE90nCfSWUbJZqcXu7rz6wztnDIAHm9zMZohRzTItGbP2",
-      });
-      const searchParams = {
-        q: `${keyword}-filter:retweets`,
-        count: 10,
-        tweet_mode: "extended",
-        lang: "in",
-      };
-      const responseTweet = await T.get("search/tweets", searchParams);
-      for (i = 0; i < responseTweet.data.statuses.length; i++) {
-        let temp = new Dataset(
-          new Date(),
-          responseTweet.data.statuses[i].full_text,
-          ""
-        );
+      const data = await readExcel(dir);
+
+      for (i = 1; i < data.length; i++) {
+        let temp = new Dataset(data[i][0], data[i][1], data[i][2]);
         dataSource.push(temp);
       }
 
@@ -58,6 +50,9 @@ module.exports = {
         dataSourceLower,
         preprocessing.operationMention
       );
+
+      await Klasifikasi.mappingHash();
+
       dataSourceRemoveSlang = await preprocessing.operationSlangAndStopWord(
         dataSourceRemoveMention,
         1,
@@ -178,16 +173,15 @@ module.exports = {
 
       res.status(200).json({
         status: "sukses",
-        message: "berhasil mendapatkan data",
-        dataAsli: dataSource,
-        dataclean:dataSourceStopWord,
+        message: "file berhasil di upload",
+        dataAsli: dataSourceStopWord,
+        perhitungan: result_perhitungan,
         klasifikasi: result_klasifikasi,
-        perhitungan:result_perhitungan
       });
-    } catch (e) {
+    } catch (err) {
       res.status(500).json({
         status: "fail",
-        message: e.message,
+        message: err.message,
       });
     }
   },

@@ -14,6 +14,7 @@ apiRouter.post("/api/v1/testing",cors(),controller.api.v1.clasificationControlle
 apiRouter.post("/api/v1/testings",[cors(),controller.api.v1.uploadController.uploadFile],controller.api.v1.clasificationControllerExcel.Upload);
 apiRouter.post("/api/v1/datasets",cors(),controller.api.v1.dataset.addDataset);
 apiRouter.post("/api/v1/tweets",cors(),controller.api.v1.tweet.GetTweetFromTwiter);
+apiRouter.get("/api/v1/sum",cors(),controller.api.v1.dataset.sum);
 appRouter.use(apiRouter);
 server.use(express.json());
 server.use(cors());

@@ -29,7 +29,7 @@ async function idf(df, feature) {
     }
     documentCount == 0
       ? result.push(0)
-      : result.push(Math.log(df.length / documentCount));
+      : result.push(Math.log10(df.length / documentCount));
   }
   return result;
 }

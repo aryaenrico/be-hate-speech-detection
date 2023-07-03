@@ -59,6 +59,7 @@ module.exports = {
     datasetObj.tweet = preprocessing.removeOnlyOneCharacter(datasetObj.tweet);
 
     if (FlagOperation.cache == false) {
+      // kita ambil seluruh data yang ada 
       let dataset = await service.getData();
       FlagOperation.cache = true;
       //countTest = Math.floor((data.length * test) / 100);
@@ -170,6 +171,7 @@ module.exports = {
       perhitungan_penghinaan: penghinaan,
       perhitungan_provokasi: provokasi,
       weight: FlagOperation.weight,
+      feature:FlagOperation.feature
     });
     }catch(err){
       res.status(500).json({

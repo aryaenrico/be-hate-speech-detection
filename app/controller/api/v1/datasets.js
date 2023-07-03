@@ -70,5 +70,11 @@ module.exports = {
     }
       
    
+  },
+   async sum(req,res){
+     let result = await serviceDataset.getCountdata();
+    res.status(200).json({
+      result
+    })
   }
 };

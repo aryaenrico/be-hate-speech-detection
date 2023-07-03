@@ -49,7 +49,7 @@ function removeOnlyOneCharacter(text){
 }
 
 function removePunctuation(text) {
-  return text.replace(/[.,-\/#!$%\^&\*;:{}=_`~()?'"\[\]]/g, " ");
+  return text.replace(/[.,\/#!$%\^&\*;:{}=_`~()?'"\[\]]/g, " ");
 }
 
 function mappingArray(data, operation) {
@@ -84,9 +84,9 @@ function operationMention({ tanggal, tweet, klasifikasi },code=1) {
   let removeTandaBaca =removePunctuation(resultRemoveEmote);
   let tempTweet2 = ` ${removeTandaBaca} `;
   if (code == 1){
-    return new Dataset(tanggal,removeExcesSpace(removeOnlyOneCharacter(tempTweet2)), klasifikasi);
+    return new Dataset(tanggal,removeExcesSpace(tempTweet2), klasifikasi);
   }else{
-    return removeExcesSpace(removeOnlyOneCharacter(tempTweet2))
+    return removeExcesSpace(tempTweet2)
   }
 
   
@@ -106,10 +106,16 @@ function operationSlangAndStopWord(data, code, map) {
     for (kata of tweetSplit) {
       resultWord = `${resultWord} ${kata}`;
     }
-
+   if (code == 1){
     arrayWord.push(
       new Dataset(data[i].tanggal, removeExcesSpace(resultWord.trim()), data[i].klasifikasi)
     );
+   }else{
+    arrayWord.push(
+      new Dataset(data[i].tanggal, removeExcesSpace(removeOnlyOneCharacter(resultWord.trim())), data[i].klasifikasi)
+    );
+   }
+    
   }
   return arrayWord;
 }
@@ -117,6 +123,7 @@ function operationSlangAndStopWord(data, code, map) {
 function operationSlangAndStopWord1Data(data, code, map) {
   
     let resultWord = "";
+    let result;
     let tweetSplit = data.split(" ");
     for (j = 0; j < tweetSplit.length; j++) {
       let word = map.get(tweetSplit[j]);
@@ -127,7 +134,15 @@ function operationSlangAndStopWord1Data(data, code, map) {
     for (kata of tweetSplit) {
       resultWord = `${resultWord} ${kata}`;
     }
-  return removeExcesSpace(resultWord.trim());
+
+    if (code == 1){
+      resultWord = removeExcesSpace(resultWord.trim());
+     }else{
+      
+        resultWord = removeExcesSpace(removeOnlyOneCharacter(resultWord.trim()))
+     }
+     return resultWord;
+ 
 }
 
 function createArrayOfMaps(data,pergi) {
