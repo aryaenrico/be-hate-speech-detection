@@ -12,7 +12,7 @@ module.exports = {
     let datasetPenghinaan = [];
     let datasetPositif = [];
     let resultMax;
-    let sumPositif, sumPenghinaan, sumProvokasi;
+    let sumPositif=[], sumPenghinaan=[], sumProvokasi=[];
     let word;
 
     let positif = [];
@@ -65,7 +65,7 @@ module.exports = {
       //countTest = Math.floor((data.length * test) / 100);
 
       dataset_All = Klasifikasi.mappingDataset(dataset);
-      FlagOperation.feature = Klasifikasi.mappingBag_of_word(dataset_All);
+      FlagOperation.feature =[...FlagOperation.feature,...Klasifikasi.mappingBag_of_word(dataset_All)]; 
 
       // split dataset every class
       for (i = 0; i < dataset_All.length; i++) {
@@ -153,7 +153,13 @@ module.exports = {
     res.status(200).json({
       message: "berhasil",
       status: FlagOperation.cache,
-      total: FlagOperation.feature.length, 
+      feature:FlagOperation.feature,
+      tf1:FlagOperation.tfPositif[0][0],
+      tf2:FlagOperation.tfPositif[1][0],
+      tfdf1:FlagOperation.wPositif[0][0],
+      tfdf2:FlagOperation.wPositif[1][0],
+      idf:FlagOperation.idfPositif[0],
+      sum:sumPositif[0],
       dataclean: datasetObj.tweet,
       datacleanArr: word,
       probPositif: FlagOperation.probPositif,

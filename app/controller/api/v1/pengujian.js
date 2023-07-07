@@ -10,8 +10,8 @@ const { FlagOperation } = require("../../../../pojo/flag");
 const extraction_fitur = require("../../../../utils/featureExtraction");
 const Klasifikasi = require("../../../../utils/clasification");
 
-module.export = {
-  async Upload(req, res) {
+module.exports = {
+  async Matrix(req, res) {
     let dataSource = [];
     let dataSourceLower = [];
     let dataSourceRemoveMention = [];
@@ -29,6 +29,10 @@ module.export = {
     let result_klasifikasi = [];
     let result_perhitungan = [];
     let klasifikasi_actual=[];
+    let confusionMatrix = new Array(3).fill(0).map(() => new Array(3).fill(0));
+    let resultMatrix={};
+
+
     const dir = path.join(
       __dirname,
       `../../../../datasetData/${res.locals.fileName}`
@@ -171,12 +175,50 @@ module.export = {
         }
       }
 
+      for (i=0;i<dataSource.length;i++){
+        if (dataSource[i].klasifikasi == "non hs"){
+          if (result_klasifikasi[i] == "non hs"){
+            confusionMatrix[0][0] =confusionMatrix[0][0]+1;
+          }else if (result_klasifikasi[i] == "penghinaan"){
+            confusionMatrix[0][1] =confusionMatrix[0][1]+1;
+          }else{
+            confusionMatrix[0][2] =confusionMatrix[0][2]+1;
+          }
+        } else if (dataSource[i].klasifikasi == "penghinaan"){
+          if (result_klasifikasi[i] == "penghinaan"){
+            confusionMatrix[1][1] =confusionMatrix[1][1]+1;
+          }else if (result_klasifikasi[i] == "provokasi"){
+            confusionMatrix[1][2] =confusionMatrix[1][2]+1;
+          }{
+            confusionMatrix[1][0] =confusionMatrix[1][0]+1;
+          }
+        } 
+        else{
+          if (result_klasifikasi[i] == "provokasi"){
+            confusionMatrix[2][2] =confusionMatrix[2][2]+1;
+          }else if (result_klasifikasi[i] == "penghinaan"){
+            confusionMatrix[2][1] =confusionMatrix[2][1]+1;
+          }else if (result_klasifikasi[i] == "non hs"){
+            confusionMatrix[2][0] =confusionMatrix[2][0]+1;
+          }
+        } 
+      }
+      const TP =confusionMatrix[0][0]+confusionMatrix[1][1]+confusionMatrix[2][2];
+      const FP =(confusionMatrix[1][0]+confusionMatrix[2][0])+(confusionMatrix[0][1]+confusionMatrix[2][1])+(confusionMatrix[0][2]+confusionMatrix[1][2]);
+      const FN =(confusionMatrix[0][1]+confusionMatrix[0][2])+(confusionMatrix[1][0]+confusionMatrix[1][2])+(confusionMatrix[2][0]+confusionMatrix[2][1]);
+      resultMatrix.akurasi = (TP* 100) / dataSource.length;
+      resultMatrix.presisi =(TP/(TP+FP)) *100;
+      resultMatrix.recall =(TP/(TP+FN))*100;
+      
+
       res.status(200).json({
         status: "sukses",
         message: "file berhasil di upload",
-        dataAsli: dataSourceStopWord,
+        dataAsli: dataSource,
         perhitungan: result_perhitungan,
         klasifikasi: result_klasifikasi,
+        Tabel:confusionMatrix,
+        resultMatrix
       });
     } catch (err) {
       res.status(500).json({

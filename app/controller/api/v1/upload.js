@@ -84,12 +84,12 @@ module.exports = {
       res.status(200).json({
         status: "sukses",
         message: "file berhasil di upload",
-        dataAsli: dataSource[3],
-        lowerCase: dataSourceLower[3],
-        removeMention: dataSourceRemoveMention[3],
-        slangWord: dataSourceRemoveSlang[3],
-        stemming: dataStemming[3],
-        stopWord:dataSourceStopWord[3]
+        dataAsli: dataSource[0],
+        lowerCase: dataSourceLower[0],
+        removeMention: dataSourceRemoveMention[0],
+        slangWord: dataSourceRemoveSlang[0],
+        stemming: dataStemming[0],
+        stopWord:dataSourceStopWord[0]
       });
     } catch (error) {
       res.status(500).json({

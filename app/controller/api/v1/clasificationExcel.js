@@ -169,7 +169,8 @@ module.exports = {
     res.status(200).json({
       status: "sukses",
       message: "file berhasil di upload",
-      dataAsli: dataSourceStopWord,
+      dataAsli:dataSource,
+      dataClean:dataSourceStopWord,
       perhitungan: result_perhitungan,
       klasifikasi: result_klasifikasi,
     });
