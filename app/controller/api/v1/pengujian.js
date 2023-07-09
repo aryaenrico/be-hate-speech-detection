@@ -189,7 +189,7 @@ module.exports = {
             confusionMatrix[1][1] =confusionMatrix[1][1]+1;
           }else if (result_klasifikasi[i] == "provokasi"){
             confusionMatrix[1][2] =confusionMatrix[1][2]+1;
-          }{
+          }else {
             confusionMatrix[1][0] =confusionMatrix[1][0]+1;
           }
         } 
@@ -205,6 +205,7 @@ module.exports = {
       }
       const TP =confusionMatrix[0][0]+confusionMatrix[1][1]+confusionMatrix[2][2];
       const FP =(confusionMatrix[1][0]+confusionMatrix[2][0])+(confusionMatrix[0][1]+confusionMatrix[2][1])+(confusionMatrix[0][2]+confusionMatrix[1][2]);
+      console.info(FP);
       const FN =(confusionMatrix[0][1]+confusionMatrix[0][2])+(confusionMatrix[1][0]+confusionMatrix[1][2])+(confusionMatrix[2][0]+confusionMatrix[2][1]);
       resultMatrix.akurasi = (TP* 100) / dataSource.length;
       resultMatrix.presisi =(TP/(TP+FP)) *100;
@@ -217,7 +218,7 @@ module.exports = {
         dataAsli: dataSource,
         perhitungan: result_perhitungan,
         klasifikasi: result_klasifikasi,
-        Tabel:confusionMatrix,
+        tabel:confusionMatrix,
         resultMatrix
       });
     } catch (err) {
