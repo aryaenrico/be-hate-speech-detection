@@ -20,7 +20,27 @@ function removeMention(text) {
   return text.replace(/[@]{1}(.*?) /g, "");
 }
 function removeNumber(text){
-  return text.replace(/[0-9]/g, "");
+  return text.replace(/[4]/g, "A");
+}
+function replaceNumberToCharacter(text){
+  let resultWord ="";
+  let word = removeExcesSpace(text).split(" ");
+  for (let i=0;i<word.length;i++){
+      if (/[0-9]/g.test(word[i])){
+            for (let k=0;k<word[i].length;k++){
+              let temp = word[i];
+              if(/[0-9]/g.test(temp.charAt(k))){
+                //word[i].charAt(k) = mappingNumberToCharacter(word[i].charAt(k));
+                word[i] = word[i].substring(0, k) + mappingNumberToCharacter(word[i].charAt(k)) + word[i].substring(k + 1);
+
+              }
+            }
+      }
+  }
+  for (kata of word) {
+    resultWord = `${resultWord} ${kata}`;
+  }
+  return resultWord;
 }
 
 function removeHastag(text) {
@@ -70,19 +90,41 @@ function operationLower({ tanggal, tweet, klasifikasi }) {
   return new Dataset(tanggal, caseFolding(tempTweet), klasifikasi);
 }
 
-function onlyText(text){
-  return text.replace(/[^a-z]/g, " ");
+function mappingNumberToCharacter(text){
+  let result ="";
+  switch(text){
+    case "1": 
+    result ="i";
+    break;
+    case "5":
+      result ="s"
+      break;
+      case "4":
+        result ="a"
+        break;
+        case "3":
+          result ="e"
+          break;
+  }
+  return result;
 }
+
+// function onlyText(text){
+//   return text.replace(/[^a-z]/g, " ");
+// }
 
 function operationMention({ tanggal, tweet, klasifikasi },code=1) {
   let tempTweet = `${tweet} `;
   let resultMention = removeMention(tempTweet);
   let resultLink = removeLink(resultMention);
   let resultHastag = removeHastag(resultLink);
-  let resutltNumber = removeNumber(resultHastag);
-  let resultRemoveEmote =onlyText(resutltNumber);
-  let removeTandaBaca =removePunctuation(resultRemoveEmote);
-  let tempTweet2 = ` ${removeTandaBaca} `;
+  let removeTandaBaca =removePunctuation(resultHastag);
+  let replaceToCharacter = replaceNumberToCharacter(removeTandaBaca);
+  //let resutltNumber = removeNumber(resultHastag);
+ // let replaceToCharacter =replaceNumberToCharacter(resutltNumber)
+  //let resultRemoveEmote =onlyText(resutltNumber);
+ // let removeTandaBaca =removePunctuation(resutltNumber);
+  let tempTweet2 = ` ${replaceToCharacter} `;
   if (code == 1){
     return new Dataset(tanggal,removeExcesSpace(tempTweet2), klasifikasi);
   }else{
@@ -139,7 +181,7 @@ function operationSlangAndStopWord1Data(data, code, map) {
       resultWord = removeExcesSpace(resultWord.trim());
      }else{
       
-        resultWord = removeExcesSpace(removeOnlyOneCharacter(resultWord.trim()))
+        resultWord = removeExcesSpace(resultWord.trim())
      }
      return resultWord;
  
@@ -184,5 +226,7 @@ module.exports = {
   Stemming,
   Slang,
   removeOnlyOneCharacter,
-  operationSlangAndStopWord1Data
+  operationSlangAndStopWord1Data,
+  replaceNumberToCharacter,
+  mappingNumberToCharacter
 };

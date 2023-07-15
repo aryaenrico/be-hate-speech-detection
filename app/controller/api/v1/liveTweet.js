@@ -29,10 +29,10 @@ module.exports = {
       const { keyword = "pssi" } = req.body;
       const Twit = require("twit");
       const T = new Twit({
-        consumer_key: "20nzU467ZwsY4QbnW6mFeIkN4",
-        consumer_secret: "ODxWfkH8yf96WnqtJcjjP0u5bN7u5e3uKl3ESrF4r2dMuiEXpp",
-        access_token: "108170270-c1fcsu1tbCurSgAwkDCj7aGqqshfO3mGZuPK08yg",
-        access_token_secret: "ZE90nCfSWUbJZqcXu7rz6wztnDIAHm9zMZohRzTItGbP2",
+        consumer_key: "L4KHWksgzimaPFZS1IJmewIAF",
+        consumer_secret: "ccJgYDC8gSi4WbNPHfr81hA061W89iBxCyg95lQnGZmebvq2Tg",
+        access_token: "3019126542-lVWusbG5jLYV3Xq3RIySPzCa91bcDJil1lEUAzr",
+        access_token_secret: "JrKiE7pKHEwLDNMhmTKcbBOwYysaga9ujPYeZGFFcWuA2",
       });
       const searchParams = {
         q: `${keyword}-filter:retweets`,

@@ -159,7 +159,7 @@ module.exports = {
       tfdf1:FlagOperation.wPositif[0][0],
       tfdf2:FlagOperation.wPositif[1][0],
       idf:FlagOperation.idfPositif[0],
-      sum:sumPositif[0],
+      sum:FlagOperation.wPositif[0][0]+FlagOperation.wPositif[1][0],
       dataclean: datasetObj.tweet,
       datacleanArr: word,
       probPositif: FlagOperation.probPositif,
