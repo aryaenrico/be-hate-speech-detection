@@ -25,6 +25,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'Dataset',
+    tableName:"datasets"
   });
   return Dataset;
 };
