@@ -1,11 +1,11 @@
 {
   "development": {
     "username": "root",
-    "password": "",
-    "database": "hate_speech_development",
-    "host": "localhost",
+    "password": "VAiaaOHCkUII06LDb7q2",
+    "database": "railway",
+    "host": "containers-us-west-122.railway.app",
     "dialect": "mysql",
-    "port":"3306"
+    "port":"6157"
   },
   "test": {
     "username": "root",
