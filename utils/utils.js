@@ -134,9 +134,6 @@ function mappingNumberToCharacter(text) {
     case "12":
       result = "r";
       break;
-    case "13":
-      result = "b";
-      break;
       case "0":
       result = "o";
       break;
