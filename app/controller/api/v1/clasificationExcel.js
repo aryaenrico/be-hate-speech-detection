@@ -15,7 +15,7 @@ module.exports = {
     let dataSource = [];
     let dataSourceLower = [];
     let dataSourceRemoveMention = [];
-    let sumPositif, sumPenghinaan, sumProvokasi;
+    let sumPositif=[], sumPenghinaan=[], sumProvokasi=[];
     let dataSourceRemoveSlang = [];
     let dataStemming = [];
     let dataSourceStopWord = [];
@@ -165,6 +165,7 @@ module.exports = {
           break;
       }
     }
+    console.log(FlagOperation.weight[3]);
 
     res.status(200).json({
       status: "sukses",

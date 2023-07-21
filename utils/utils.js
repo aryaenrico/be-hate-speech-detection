@@ -213,7 +213,7 @@ function operationSlangAndStopWord1Data(data, code, map) {
   if (code == 1) {
     resultWord = removeExcesSpace(resultWord.trim());
   } else {
-    resultWord = removeExcesSpace(resultWord.trim());
+    resultWord = removeExcesSpace(removeOnlyOneCharacter(resultWord.trim()));
   }
   return resultWord;
 }
